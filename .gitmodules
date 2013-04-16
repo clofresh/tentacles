@@ -1,0 +1,6 @@
+[submodule "lib/atl"]
+	path = lib/atl
+	url = git://github.com/Kadoba/Advanced-Tiled-Loader.git
+[submodule "lib/hump"]
+	path = lib/hump
+	url = git://github.com/vrld/hump
