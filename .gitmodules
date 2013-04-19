@@ -4,3 +4,6 @@
 [submodule "lib/hump"]
 	path = lib/hump
 	url = git://github.com/vrld/hump
+[submodule "lib/dong"]
+	path = lib/dong
+	url = git://github.com/josefnpat/dong.git

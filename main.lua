@@ -2,6 +2,7 @@ local ATL = require("lib/atl").Loader
 local Camera = require("lib/hump/camera")
 local Gamestate = require("lib/hump/gamestate")
 local vector = require("lib/hump/vector")
+local dong = require("lib/dong/dong")
 ATL.path = "tmx/"
 
 local Game = {}
@@ -19,12 +20,16 @@ function Game:init()
     assert(startPos)
     self.player = {
         pos = startPos,
-        w = 64,
-        h = 64,
-        speed = 96,
+        w = 32,
+        h = 32,
+        speed = 128,
+        hitRadius = 16,
         draw = function(self)
-            love.graphics.rectangle("fill", self.pos.x, self.pos.y,
-                                    self.w, self.h)
+            love.graphics.circle("fill", self.pos.x, self.pos.y, self.w)
+            if self.hitPos then
+                love.graphics.circle("fill", self.pos.x + self.hitPos.x,
+                    self.pos.y + self.hitPos.y, self.hitRadius)
+            end
         end
     }
     self.cam = Camera(self.player.pos.x, self.player.pos.y)
@@ -46,6 +51,34 @@ function Game:update(dt)
     elseif love.keyboard.isDown("d") then
         self.player.pos.x = self.player.pos.x + dt * self.player.speed
         changed = true
+    end
+
+    local lsX, lsY = dong.ls(1)
+    local rsX, rsY = dong.rs(1)
+
+    if math.abs(lsX) > 0.1 then
+        self.player.pos.x = self.player.pos.x + dt * self.player.speed * lsX
+        changed = true
+    end
+
+    if math.abs(lsY) > 0.1 then
+        self.player.pos.y = self.player.pos.y + dt * self.player.speed * lsY
+        changed = true
+    end
+
+    local swingX = 0
+    local swingY = 0
+    if math.abs(rsX) > 0.1 then
+        swingX = rsX
+    end
+    if math.abs(rsY) > 0.1 then
+        swingY = rsY
+    end
+    if swingX ~= 0 or swingY ~= 0 then
+        self.player.hitPos = vector(swingX, swingY) *
+                                (self.player.w + self.player.hitRadius)
+    else
+        self.player.hitPos = nil
     end
 
     if changed then
