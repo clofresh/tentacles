@@ -53,8 +53,14 @@ function Game:update(dt)
         changed = true
     end
 
-    local lsX, lsY = dong.ls(1)
-    local rsX, rsY = dong.rs(1)
+    local lsX, lsY, rsX, rsY
+    if love._os == "Windows" then
+        lsX, lsY = dong.ls(1)
+        rsY, rsX = dong.rs(1)
+    else
+        lsX, lsY = dong.ls(1)
+        rsX, rsY = dong.rs(1)
+    end
 
     if math.abs(lsX) > 0.1 then
         self.player.pos.x = self.player.pos.x + dt * self.player.speed * lsX
