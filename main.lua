@@ -56,23 +56,29 @@ function Game:update(dt)
     local lsX, lsY = dong.ls(1)
     local rsX, rsY = dong.rs(1)
 
-    if math.abs(lsX) > 0.1 then
-        self.player.pos.x = self.player.pos.x + dt * self.player.speed * lsX
-        changed = true
-    end
+    if lsX and lsY then
+        if math.abs(lsX) > 0.1 then
+            self.player.pos.x = self.player.pos.x
+                                + dt * self.player.speed * lsX
+            changed = true
+        end
 
-    if math.abs(lsY) > 0.1 then
-        self.player.pos.y = self.player.pos.y + dt * self.player.speed * lsY
-        changed = true
+        if math.abs(lsY) > 0.1 then
+            self.player.pos.y = self.player.pos.y
+                                + dt * self.player.speed * lsY
+            changed = true
+        end
     end
 
     local swingX = 0
     local swingY = 0
-    if math.abs(rsX) > 0.1 then
-        swingX = rsX
-    end
-    if math.abs(rsY) > 0.1 then
-        swingY = rsY
+    if rsX and rsY then
+        if math.abs(rsX) > 0.1 then
+            swingX = rsX
+        end
+        if math.abs(rsY) > 0.1 then
+            swingY = rsY
+        end
     end
     if swingX ~= 0 or swingY ~= 0 then
         self.player.hitPos = vector(swingX, swingY) *
