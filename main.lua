@@ -32,7 +32,7 @@ function Game:init()
             end
         end
     }
-    self.cam = Camera(self.player.pos.x, self.player.pos.y)
+    self.cam = Camera(love.graphics.getWidth() / 2, self.player.pos.y)
 end
 
 function Game:update(dt)
@@ -88,7 +88,8 @@ function Game:update(dt)
     end
 
     if changed then
-        self.cam.x, self.cam.y = self.player.pos.x, self.player.pos.y
+        self.cam.x = love.graphics.getWidth() / 2
+        self.cam.y = self.player.pos.y
     end
 
     local camWorldWidth = love.graphics.getWidth() / self.cam.scale
