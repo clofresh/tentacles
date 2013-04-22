@@ -1,7 +1,7 @@
 local dong = require("lib/dong/dong")
 local joystick = {}
 
-joystick.update = function(game, dt)
+joystick.update = function(dt, game)
     -- xbox controller movement input
     local changed = false
     local lsX, lsY = dong.ls(1)
@@ -34,7 +34,7 @@ joystick.update = function(game, dt)
     end
     if swingX ~= 0 or swingY ~= 0 then
         game.player.hitPos = vector(swingX, swingY) *
-                                (game.player.w + game.player.hitRadius)
+                                (game.player.radius + game.player.hitRadius)
     else
         game.player.hitPos = nil
     end

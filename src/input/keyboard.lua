@@ -1,6 +1,6 @@
 local keyboard = {}
 
-keyboard.update = function(game, dt)
+keyboard.update = function(dt, game)
     local changed = false
     if love.keyboard.isDown("w") then
         game.player.pos.y = game.player.pos.y - dt * game.player.speed

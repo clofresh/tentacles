@@ -2,9 +2,9 @@ local ATL = require("lib/atl").Loader
 local Camera = require("lib/hump/camera")
 local Gamestate = require("lib/hump/gamestate")
 vector = require("lib/hump/vector")
+Class = require("lib/hump/class")
 
-local keyboard = require("src/input/keyboard")
-local joystick = require("src/input/joystick")
+local Player = require("src/player")
 ATL.path = "tmx/"
 
 local Game = {}
@@ -20,29 +20,14 @@ function Game:init()
         end
     end
     assert(startPos)
-    self.player = {
-        pos = startPos,
-        w = 32,
-        h = 32,
-        speed = 128,
-        hitRadius = 16,
-        draw = function(self)
-            love.graphics.circle("fill", self.pos.x, self.pos.y, self.w)
-            if self.hitPos then
-                love.graphics.circle("fill", self.pos.x + self.hitPos.x,
-                    self.pos.y + self.hitPos.y, self.hitRadius)
-            end
-        end
-    }
+    self.player = Player(startPos, 32)
+    self.player.speed = 128
+    self.player.hitRadius = 16
     self.cam = Camera(love.graphics.getWidth() / 2, self.player.pos.y)
-    self.inputs = {keyboard, joystick}
 end
 
 function Game:update(dt)
-    local changed = false
-    for i, input in pairs(self.inputs) do
-        changed = input.update(self, dt) or changed
-    end
+    local changed = self.player:update(dt, self)
 
     -- update camera
     if changed then
