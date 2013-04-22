@@ -31,6 +31,7 @@ end
 function Game:updateCamera()
     self.cam.x = love.graphics.getWidth() / 2
     self.cam.y = self.player.pos.y
+
     local camWorldWidth = love.graphics.getWidth() / self.cam.scale
     local camWorldHeight = love.graphics.getHeight() / self.cam.scale
     local camWorldX = self.cam.x - (camWorldWidth / 2)

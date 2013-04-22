@@ -5,8 +5,15 @@ joystick.update = function(dt, game)
     -- xbox controller movement input
     local player = game.player
     local changed = false
-    local lsX, lsY = dong.ls(1)
-    local rsX, rsY = dong.rs(1)
+
+    local lsX, lsY
+    if love._os == "Windows" then
+        lsX, lsY = dong.ls(1)
+        rsY, rsX = dong.rs(1)
+    else
+        lsX, lsY = dong.ls(1)
+        rsX, rsY = dong.rs(1)
+    end
 
     if lsX and lsY then
         if math.abs(lsX) > 0.1 then
