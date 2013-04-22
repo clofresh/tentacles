@@ -1,6 +1,7 @@
 local ATL = require("lib/atl").Loader
 local Camera = require("lib/hump/camera")
 local Gamestate = require("lib/hump/gamestate")
+local HC = require("lib/hardoncollider")
 vector = require("lib/hump/vector")
 Class = require("lib/hump/class")
 
@@ -11,11 +12,24 @@ ATL.path = "tmx/"
 local Game = {}
 
 function Game:init()
+    local entities = {Player, Critter}
+    self.collidables = {}
+
+    self.collider = HC(100, function(dt, shapeA, shapeB, dx, dy)
+        local thing1 = self.collidables[shapeA]
+        local thing2 = self.collidables[shapeB]
+        if thing1 and thing1:canCollide(thing2) then
+            thing1.pos = thing1.pos + vector(dx, dy)
+        end
+        if thing2 and thing2:canCollide(thing1) then
+            thing2.pos = thing2.pos - vector(dx, dy)
+        end
+    end)
+
     self.map = ATL.load("map0.tmx")
     self.map.drawObjects = false
-    local loaders = {Player, Critter}
     for i, obj in pairs(self.map("units").objects) do
-        for j, loader in pairs(loaders) do
+        for j, loader in pairs(entities) do
             loader.fromTmx(obj, self)
         end
     end
@@ -32,8 +46,7 @@ function Game:updateCamera()
     local camWorldHeight = love.graphics.getHeight() / self.cam.scale
     local camWorldX = self.cam.x - (camWorldWidth / 2)
     local camWorldY = self.cam.y - (camWorldHeight / 2)
-    self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth,
-                          camWorldHeight)
+    self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth, camWorldHeight)
 end
 
 function Game:update(dt)
@@ -41,7 +54,7 @@ function Game:update(dt)
         Critter.update(critter, dt)
     end
     local changed = self.player:update(dt, self)
-
+    self.collider:update(dt)
     -- update camera
     if changed then
         self:updateCamera()

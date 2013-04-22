@@ -7,19 +7,26 @@ local Player = Class{function(self, pos, radius)
     self.inputs = {keyboard, joystick}
 end}
 
+function Player:canCollide(other)
+    return false
+end
+
 function Player:update(dt, game)
     local changed = false
     for i, input in pairs(self.inputs) do
         changed = input.update(dt, game) or changed
+    end
+    if changed then
+        self.hitShape:moveTo(self.pos.x, self.pos.y)
     end
     return changed
 end
 
 function Player:draw()
     love.graphics.circle("fill", self.pos.x, self.pos.y, self.radius)
-    if self.hitPos then
-        love.graphics.circle("fill", self.pos.x + self.hitPos.x,
-            self.pos.y + self.hitPos.y, self.hitRadius)
+    if self.attack then
+        love.graphics.circle("line", self.attack.pos.x,
+            self.attack.pos.y, self.attack.radius)
     end
 end
 
@@ -29,6 +36,9 @@ function Player.fromTmx(obj, game)
         player.speed = 128
         player.hitRadius = 16
         game.player = player
+        player.hitShape = game.collider:addCircle(player.pos.x, player.pos.y,
+                                                  player.radius)
+        game.collidables[player.hitShape] = player
     end
 end
 

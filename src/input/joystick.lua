@@ -3,20 +3,19 @@ local joystick = {}
 
 joystick.update = function(dt, game)
     -- xbox controller movement input
+    local player = game.player
     local changed = false
     local lsX, lsY = dong.ls(1)
     local rsX, rsY = dong.rs(1)
 
     if lsX and lsY then
         if math.abs(lsX) > 0.1 then
-            game.player.pos.x = game.player.pos.x
-                                + dt * game.player.speed * lsX
+            player.pos.x = player.pos.x + dt * player.speed * lsX
             changed = true
         end
 
         if math.abs(lsY) > 0.1 then
-            game.player.pos.y = game.player.pos.y
-                                + dt * game.player.speed * lsY
+            player.pos.y = player.pos.y + dt * player.speed * lsY
             changed = true
         end
     end
@@ -33,10 +32,22 @@ joystick.update = function(dt, game)
         end
     end
     if swingX ~= 0 or swingY ~= 0 then
-        game.player.hitPos = vector(swingX, swingY) *
-                                (game.player.radius + game.player.hitRadius)
+        local attack = {
+            pos = player.pos + (vector(swingX, swingY) *
+                              (game.player.radius + game.player.hitRadius)),
+            radius = game.player.hitRadius,
+            canCollide = function() return false end,
+        }
+        attack.hitShape = game.collider:addCircle(attack.pos.x, attack.pos.y,
+                                                  attack.radius)
+        game.collidables[attack.hitShape] = attack
+        player.attack = attack
     else
-        game.player.hitPos = nil
+        if player.attack then
+            game.collidables[player.attack.hitShape] = nil
+            game.collider:remove(player.attack.hitShape)
+            player.attack = nil
+        end
     end
 
     return changed
