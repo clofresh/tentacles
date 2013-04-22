@@ -1,8 +1,10 @@
 local ATL = require("lib/atl").Loader
 local Camera = require("lib/hump/camera")
 local Gamestate = require("lib/hump/gamestate")
-local vector = require("lib/hump/vector")
-local dong = require("lib/dong/dong")
+vector = require("lib/hump/vector")
+
+local keyboard = require("src/input/keyboard")
+local joystick = require("src/input/joystick")
 ATL.path = "tmx/"
 
 local Game = {}
@@ -33,70 +35,26 @@ function Game:init()
         end
     }
     self.cam = Camera(love.graphics.getWidth() / 2, self.player.pos.y)
+    self.inputs = {keyboard, joystick}
 end
 
 function Game:update(dt)
     local changed = false
-    if love.keyboard.isDown("w") then
-        self.player.pos.y = self.player.pos.y - dt * self.player.speed
-        changed = true
-    elseif love.keyboard.isDown("s") then
-        self.player.pos.y = self.player.pos.y + dt * self.player.speed
-        changed = true
+    for i, input in pairs(self.inputs) do
+        changed = input.update(self, dt) or changed
     end
 
-    if love.keyboard.isDown("a") then
-        self.player.pos.x = self.player.pos.x - dt * self.player.speed
-        changed = true
-    elseif love.keyboard.isDown("d") then
-        self.player.pos.x = self.player.pos.x + dt * self.player.speed
-        changed = true
-    end
-
-    local lsX, lsY = dong.ls(1)
-    local rsX, rsY = dong.rs(1)
-
-    if lsX and lsY then
-        if math.abs(lsX) > 0.1 then
-            self.player.pos.x = self.player.pos.x
-                                + dt * self.player.speed * lsX
-            changed = true
-        end
-
-        if math.abs(lsY) > 0.1 then
-            self.player.pos.y = self.player.pos.y
-                                + dt * self.player.speed * lsY
-            changed = true
-        end
-    end
-
-    local swingX = 0
-    local swingY = 0
-    if rsX and rsY then
-        if math.abs(rsX) > 0.1 then
-            swingX = rsX
-        end
-        if math.abs(rsY) > 0.1 then
-            swingY = rsY
-        end
-    end
-    if swingX ~= 0 or swingY ~= 0 then
-        self.player.hitPos = vector(swingX, swingY) *
-                                (self.player.w + self.player.hitRadius)
-    else
-        self.player.hitPos = nil
-    end
-
+    -- update camera
     if changed then
         self.cam.x = love.graphics.getWidth() / 2
         self.cam.y = self.player.pos.y
+        local camWorldWidth = love.graphics.getWidth() / self.cam.scale
+        local camWorldHeight = love.graphics.getHeight() / self.cam.scale
+        local camWorldX = self.cam.x - (camWorldWidth / 2)
+        local camWorldY = self.cam.y - (camWorldHeight / 2)
+        self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth,
+                              camWorldHeight)
     end
-
-    local camWorldWidth = love.graphics.getWidth() / self.cam.scale
-    local camWorldHeight = love.graphics.getHeight() / self.cam.scale
-    local camWorldX = self.cam.x - (camWorldWidth / 2)
-    local camWorldY = self.cam.y - (camWorldHeight / 2)
-    self.map:setDrawRange(camWorldX, camWorldY, camWorldWidth, camWorldHeight)
 end
 
 function Game:draw()
