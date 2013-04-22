@@ -5,6 +5,7 @@ vector = require("lib/hump/vector")
 Class = require("lib/hump/class")
 
 local Player = require("src/player")
+local Critter = require("src/critter")
 ATL.path = "tmx/"
 
 local Game = {}
@@ -12,33 +13,38 @@ local Game = {}
 function Game:init()
     self.map = ATL.load("map0.tmx")
     self.map.drawObjects = false
-    local startPos
-    for i, unit in pairs(self.map("units").objects) do
-        if unit.type == 'Start' then
-            startPos = vector(unit.x, unit.y)
-            break
+    local loaders = {Player, Critter}
+    for i, obj in pairs(self.map("units").objects) do
+        for j, loader in pairs(loaders) do
+            loader.fromTmx(obj, self)
         end
     end
-    assert(startPos)
-    self.player = Player(startPos, 32)
-    self.player.speed = 128
-    self.player.hitRadius = 16
+    assert(self.player)
+    assert(self.critters)
     self.cam = Camera(love.graphics.getWidth() / 2, self.player.pos.y)
+    self:updateCamera()
+end
+
+function Game:updateCamera()
+    self.cam.x = love.graphics.getWidth() / 2
+    self.cam.y = self.player.pos.y
+    local camWorldWidth = love.graphics.getWidth() / self.cam.scale
+    local camWorldHeight = love.graphics.getHeight() / self.cam.scale
+    local camWorldX = self.cam.x - (camWorldWidth / 2)
+    local camWorldY = self.cam.y - (camWorldHeight / 2)
+    self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth,
+                          camWorldHeight)
 end
 
 function Game:update(dt)
+    for i, critter in pairs(self.critters) do
+        Critter.update(critter, dt)
+    end
     local changed = self.player:update(dt, self)
 
     -- update camera
     if changed then
-        self.cam.x = love.graphics.getWidth() / 2
-        self.cam.y = self.player.pos.y
-        local camWorldWidth = love.graphics.getWidth() / self.cam.scale
-        local camWorldHeight = love.graphics.getHeight() / self.cam.scale
-        local camWorldX = self.cam.x - (camWorldWidth / 2)
-        local camWorldY = self.cam.y - (camWorldHeight / 2)
-        self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth,
-                              camWorldHeight)
+        self:updateCamera()
     end
 end
 
@@ -46,6 +52,9 @@ function Game:draw()
     self.cam:draw(function()
         self.map:draw()
         self.player:draw()
+        for i, critter in pairs(self.critters) do
+            Critter.draw(critter)
+        end
     end)
 end
 

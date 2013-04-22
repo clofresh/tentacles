@@ -23,4 +23,13 @@ function Player:draw()
     end
 end
 
+function Player.fromTmx(obj, game)
+    if obj.type == 'Player' then
+        local player = Player(vector(obj.x, obj.y), 32)
+        player.speed = 128
+        player.hitRadius = 16
+        game.player = player
+    end
+end
+
 return Player
