@@ -36,9 +36,7 @@ function Player.fromTmx(obj, game)
         player.speed = 128
         player.hitRadius = 16
         game.player = player
-        player.hitShape = game.collider:addCircle(player.pos.x, player.pos.y,
-                                                  player.radius)
-        game.collidables[player.hitShape] = player
+        game.collider:register(player)
     end
 end
 

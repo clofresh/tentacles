@@ -31,6 +31,11 @@ joystick.update = function(dt, game)
             swingY = rsY
         end
     end
+
+    if player.attack then
+        game.collider:unregister(player.attack)
+        player.attack = nil
+    end
     if swingX ~= 0 or swingY ~= 0 then
         local attack = {
             pos = player.pos + (vector(swingX, swingY) *
@@ -38,16 +43,9 @@ joystick.update = function(dt, game)
             radius = game.player.hitRadius,
             canCollide = function() return false end,
         }
-        attack.hitShape = game.collider:addCircle(attack.pos.x, attack.pos.y,
-                                                  attack.radius)
-        game.collidables[attack.hitShape] = attack
+        game.collider:register(attack)
         player.attack = attack
     else
-        if player.attack then
-            game.collidables[player.attack.hitShape] = nil
-            game.collider:remove(player.attack.hitShape)
-            player.attack = nil
-        end
     end
 
     return changed

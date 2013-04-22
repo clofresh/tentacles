@@ -1,40 +1,29 @@
 local ATL = require("lib/atl").Loader
 local Camera = require("lib/hump/camera")
 local Gamestate = require("lib/hump/gamestate")
-local HC = require("lib/hardoncollider")
 vector = require("lib/hump/vector")
 Class = require("lib/hump/class")
 
 local Player = require("src/player")
 local Critter = require("src/critter")
+local Collider = require("src/collider")
 ATL.path = "tmx/"
 
 local Game = {}
 
 function Game:init()
     local entities = {Player, Critter}
-    self.collidables = {}
-
-    self.collider = HC(100, function(dt, shapeA, shapeB, dx, dy)
-        local thing1 = self.collidables[shapeA]
-        local thing2 = self.collidables[shapeB]
-        if thing1 and thing1:canCollide(thing2) then
-            thing1.pos = thing1.pos + vector(dx, dy)
-        end
-        if thing2 and thing2:canCollide(thing1) then
-            thing2.pos = thing2.pos - vector(dx, dy)
-        end
-    end)
+    self.collider = Collider()
 
     self.map = ATL.load("map0.tmx")
     self.map.drawObjects = false
+    self.critters = {}
     for i, obj in pairs(self.map("units").objects) do
         for j, loader in pairs(entities) do
             loader.fromTmx(obj, self)
         end
     end
     assert(self.player)
-    assert(self.critters)
     self.cam = Camera(love.graphics.getWidth() / 2, self.player.pos.y)
     self:updateCamera()
 end

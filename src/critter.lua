@@ -26,10 +26,8 @@ function Critter.fromTmx(obj, game)
             game.critters = {}
         end
         local critter = Critter(vector(obj.x, obj.y), obj.width/2)
-        critter.hitShape = game.collider:addCircle(critter.pos.x,
-                                        critter.pos.y, critter.radius)
         table.insert(game.critters, critter)
-        game.collidables[critter.hitShape] = critter
+        game.collider:register(critter)
     end
 end
 
