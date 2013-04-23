@@ -46,13 +46,12 @@ joystick.update = function(dt, game)
     if swingX ~= 0 or swingY ~= 0 then
         local attack = {
             pos = player.pos + (vector(swingX, swingY) *
-                              (game.player.radius + game.player.hitRadius)),
+                                (player.radius + player.hitRadius)),
             radius = game.player.hitRadius,
             canCollide = function() return false end,
         }
         game.collider:register(attack)
         player.attack = attack
-    else
     end
 
     return changed
