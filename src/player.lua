@@ -1,10 +1,11 @@
-local keyboard = require("src/input/keyboard")
 local joystick = require("src/input/joystick")
+local keyboard = require("src/input/keyboard")
+local mouse    = require("src/input/mouse")
 
 local Player = Class{function(self, pos, radius)
     self.pos = pos
     self.radius = radius
-    self.inputs = {keyboard, joystick}
+    self.inputs = {joystick, keyboard, mouse}
 end}
 
 function Player:canCollide(other)
