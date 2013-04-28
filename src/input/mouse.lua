@@ -2,29 +2,38 @@ local mouse = {}
 
 mouse.update = function(dt, game)
     local changed = false
+    local player = game.player
+    local attack = player.attack
     if love.mouse.isDown("l") then
-        local x, y = love.mouse.getPosition()
-        -- converts the mouse coordinates from viewport coordinates to absolute
-        -- coordinates.
-        local mousePos = vector(x,
-            y + game.cam.y - (love.graphics.getHeight() / 2))
-        local player = game.player
-        if player.attack then
-            game.collider:unregister(player.attack)
-            player.attack = nil
+        local x, y = game.cam:mousepos()
+        if not attack then
+            local h = vector(x, y) - vector(player.body:getPosition())
+            local angle
+            if x < player.body:getX() then
+                angle = math.acos(h.y / h:len())
+            else
+                angle = (2*math.pi) - math.acos(h.y / h:len())
+            end
+
+            attack = {
+                body = love.physics.newBody(game.world, x, y, "dynamic"),
+                shape = love.physics.newRectangleShape(0, 0, 5, player.hitRadius, angle),
+                type = function() return "attack" end
+            }
+            attack.fixture = love.physics.newFixture(attack.body, attack.shape, 2)
+            -- attack.fixture:setRestitution(0.9)
+            attack.mouseJoint = love.physics.newMouseJoint(attack.body, x, y)
+            attack.pivot = love.physics.newRevoluteJoint(attack.body,
+                player.body, player.body:getX(), player.body:getY(), false)
+            game.player.attack = attack
+            game.collider:register(attack)
+        else
+            attack.mouseJoint:setTarget(x, y)
         end
-        local attackVec = mousePos - player.pos
-        local maxAttackDist = player.radius + player.hitRadius 
-        if attackVec:len() > maxAttackDist then
-            attackVec = attackVec:normalized() * maxAttackDist
-        end
-        local attack = {
-            pos = player.pos + attackVec,
-            radius = player.hitRadius,
-            canCollide = function() return false end,
-        }
-        game.collider:register(attack)
-        player.attack = attack
+    elseif attack then
+        game.collider:unregister(attack)
+        attack.body:destroy()
+        player.attack = nil
     end
     return changed
 end

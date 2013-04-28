@@ -6,15 +6,48 @@ Class = require("lib/hump/class")
 
 local Player = require("src/player")
 local Critter = require("src/critter")
-local Collider = require("src/collider")
 ATL.path = "tmx/"
 
 local Game = {}
+local Collider = {
+    id = 0,
+    entities = {}
+}
+
+function Collider:register(entity)
+    Collider.id = Collider.id + 1
+    local id = Collider.id
+    entity.fixture:setUserData(id)
+    Collider.entities[id] = entity
+end
+
+function Collider:unregister(entity)
+    local id = entity.fixture:getUserData()
+    Collider.entities[id] = nil
+end
+
+function Collider:entityFromFixture(fixture)
+    return self.entities[fixture:getUserData()]
+end
+
+function Collider.beginContact(a, b, contact)
+    local entityA = Collider:entityFromFixture(a)
+    local entityB = Collider:entityFromFixture(b)
+    if entityA:type() == "attack" and entityB:type() == "critter" then
+        local hit = vector(contact:getNormal())
+        local toHit = b:getBody()
+        local contactPosX, contactPosY = contact:getPositions()
+        contact:setRestitution(20)
+        toHit:applyLinearImpulse(hit.x, hit.y, contactPosX, contactPosY)
+        print("WOMP")
+    end
+end
 
 function Game:init()
     local entities = {Player, Critter}
-    self.collider = Collider()
-
+    self.collider = Collider
+    self.world = love.physics.newWorld()
+    self.world:setCallbacks(self.collider.beginContact)
     self.map = ATL.load("map0.tmx")
     self.map.drawObjects = false
     self.critters = {}
@@ -30,7 +63,7 @@ end
 
 function Game:updateCamera()
     self.cam.x = love.graphics.getWidth() / 2
-    self.cam.y = self.player.pos.y
+    self.cam.y = self.player.body:getY()
 
     local camWorldWidth = love.graphics.getWidth() / self.cam.scale
     local camWorldHeight = love.graphics.getHeight() / self.cam.scale
@@ -44,7 +77,7 @@ function Game:update(dt)
         Critter.update(critter, dt)
     end
     local changed = self.player:update(dt, self)
-    self.collider:update(dt)
+    self.world:update(dt)
     -- update camera
     if changed then
         self:updateCamera()

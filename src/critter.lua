@@ -8,16 +8,27 @@ function Critter:canCollide(other)
     return true
 end
 
-function Critter.update(critter, dt, game)
-    critter.pos = critter.pos 
-        + vector(math.random(-critter.step, critter.step) * dt,
-                 math.random(-critter.step, critter.step) * dt)
+function Critter:type()
+    return "critter"
+end
 
-    critter.hitShape:moveTo(critter.pos.x, critter.pos.y)
+function Critter.register(critter, game)
+    local pos = critter.pos
+    critter.body = love.physics.newBody(game.world, pos.x, pos.y, "dynamic")
+    critter.shape = love.physics.newCircleShape(critter.radius)
+    critter.fixture = love.physics.newFixture(critter.body, critter.shape, 0.1)
+    critter.fixture:setRestitution(100)
+    game.collider:register(critter)
+    table.insert(game.critters, critter)
+end
+
+function Critter.update(critter, dt, game)
+    critter.body:setLinearVelocity(math.random(-critter.step, critter.step), math.random(-critter.step, critter.step))
 end
 
 function Critter.draw(critter)
-    love.graphics.circle("fill", critter.pos.x, critter.pos.y, critter.radius)
+    love.graphics.circle("fill", critter.body:getX(),
+        critter.body:getY(), critter.shape:getRadius())
 end
 
 function Critter.fromTmx(obj, game)
@@ -26,8 +37,7 @@ function Critter.fromTmx(obj, game)
             game.critters = {}
         end
         local critter = Critter(vector(obj.x, obj.y), obj.width/2)
-        table.insert(game.critters, critter)
-        game.collider:register(critter)
+        Critter.register(critter, game)
     end
 end
 

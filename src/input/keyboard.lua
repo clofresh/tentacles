@@ -2,21 +2,24 @@ local keyboard = {}
 
 keyboard.update = function(dt, game)
     local changed = false
+    local dx = 0
+    local dy = 0
     if love.keyboard.isDown("w") then
-        game.player.pos.y = game.player.pos.y - dt * game.player.speed
+        dy = -game.player.speed
         changed = true
     elseif love.keyboard.isDown("s") then
-        game.player.pos.y = game.player.pos.y + dt * game.player.speed
+        dy = game.player.speed
         changed = true
     end
 
     if love.keyboard.isDown("a") then
-        game.player.pos.x = game.player.pos.x - dt * game.player.speed
+        dx = -game.player.speed
         changed = true
     elseif love.keyboard.isDown("d") then
-        game.player.pos.x = game.player.pos.x + dt * game.player.speed
+        dx = game.player.speed
         changed = true
     end
+    game.player.body:setLinearVelocity(dx, dy)
     return changed
 end
 
