@@ -9,7 +9,7 @@ function Critter:canCollide(other)
 end
 
 function Critter:type()
-    return "critter"
+    return "Critter"
 end
 
 function Critter.register(critter, game)
@@ -20,6 +20,7 @@ function Critter.register(critter, game)
     critter.fixture:setRestitution(100)
     game.collider:register(critter)
     table.insert(game.critters, critter)
+    print(string.format("Registered critter at (%s, %s)", pos.x, pos.y))
 end
 
 function Critter.update(critter, dt, game)

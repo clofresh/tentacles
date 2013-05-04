@@ -6,12 +6,19 @@ Class = require("lib/hump/class")
 
 local Player = require("src/player")
 local Critter = require("src/critter")
+local Tentacle = require("src/tentacle")
 ATL.path = "tmx/"
 
 local Game = {}
 local Collider = {
     id = 0,
     entities = {}
+}
+
+local entities = {
+    Player   = Player,
+    Critter  = Critter,
+    Tentacle = Tentacle,
 }
 
 function Collider:register(entity)
@@ -33,18 +40,16 @@ end
 function Collider.beginContact(a, b, contact)
     local entityA = Collider:entityFromFixture(a)
     local entityB = Collider:entityFromFixture(b)
-    if entityA:type() == "attack" and entityB:type() == "critter" then
+    if entityA:type() == "Attack" and entityB:type() == "Critter" then
         local hit = vector(contact:getNormal())
         local toHit = b:getBody()
         local contactPosX, contactPosY = contact:getPositions()
         contact:setRestitution(20)
         toHit:applyLinearImpulse(hit.x, hit.y, contactPosX, contactPosY)
-        print("WOMP")
     end
 end
 
 function Game:init()
-    local entities = {Player, Critter}
     self.collider = Collider
     self.world = love.physics.newWorld()
     self.world:setCallbacks(self.collider.beginContact)
@@ -74,7 +79,7 @@ end
 
 function Game:update(dt)
     for i, critter in pairs(self.critters) do
-        Critter.update(critter, dt)
+        entities[critter:type()].update(critter, dt)
     end
     local changed = self.player:update(dt, self)
     self.world:update(dt)
@@ -89,7 +94,7 @@ function Game:draw()
         self.map:draw()
         self.player:draw()
         for i, critter in pairs(self.critters) do
-            Critter.draw(critter)
+            entities[critter:type()].draw(critter)
         end
     end)
 end
