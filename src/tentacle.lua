@@ -61,7 +61,24 @@ function Tentacle.shrink(tentacle, dt, game)
     end
 end
 
+function Tentacle.applyDamage(tentacle, attack)
+    if #tentacle.segments > 0 then
+        local segment = tentacle.segments[#tentacle.segments]
+        segment.health = segment.health - attack.damage
+    end
+end
+
 function Tentacle.update(tentacle, dt, game)
+    -- Iterate backwards through the segments so that if we remove one,
+    -- we don't have to worry about the indexes shifting and skipping some
+    for i=#tentacle.segments, 1, -1 do
+        local segment = tentacle.segments[i]
+        if segment.health <= 0 then
+            segment.fixture:destroy()
+            segment.body:destroy()
+            table.remove(tentacle.segments, i)
+        end
+    end
     tentacle.state(tentacle, dt, game)
 end
 
@@ -90,6 +107,7 @@ function Tentacle.fromTmx(obj, game)
             body = lp.newBody(game.world, x, y, "dynamic"),
             shape = lp.newRectangleShape(i * segmentLen, 0, segmentLen,
                                          segmentWidth),
+            health = 10,
         } 
         segment.fixture = lp.newFixture(segment.body, segment.shape, density)
         segment.fixture:setGroupIndex(Tentacle.COLLISION_GROUP)
@@ -112,5 +130,7 @@ function Tentacle.fromTmx(obj, game)
     t.segments = segments
     game:register(t)
 end
+
+
 
 return Tentacle

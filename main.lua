@@ -6,8 +6,8 @@ Class = require("lib/hump/class")
 
 local Player = require("src/player")
 local Critter = require("src/critter")
-local Tentacle = require("src/tentacle")
 local Collider = require("src/collider")
+Tentacle = require("src/tentacle")
 ATL.path = "tmx/"
 
 local Game = {}

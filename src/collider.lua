@@ -37,12 +37,17 @@ end
 function Collider.beginContact(a, b, contact)
     local entityA = Collider:entityFromFixture(a)
     local entityB = Collider:entityFromFixture(b)
-    if entityA:type() == "Attack" and entityB:type() == "Critter" then
+    local aType = entityA:type()
+    local bType = entityB:type()
+    if aType == "Attack" and bType == "Critter" then
         local hit = vector(contact:getNormal())
         local toHit = b:getBody()
         local contactPosX, contactPosY = contact:getPositions()
-        contact:setRestitution(20)
         toHit:applyLinearImpulse(hit.x, hit.y, contactPosX, contactPosY)
+    elseif aType == "Attack" and bType == "Tentacle" then
+        Tentacle.applyDamage(entityB, entityA)
+    elseif aType == "Tentacle" and bType == "Attack" then
+        Tentacle.applyDamage(entityA, entityB)
     end
 end
 

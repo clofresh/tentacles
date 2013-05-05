@@ -17,7 +17,8 @@ mouse.update = function(player, dt, game)
             attack = {
                 body = love.physics.newBody(game.world, x, y, "dynamic"),
                 shape = love.physics.newRectangleShape(0, 0, 5, player.hitRadius, angle),
-                type = function() return "attack" end
+                type = function() return "Attack" end,
+                damage = 1,
             }
             attack.fixture = love.physics.newFixture(attack.body, attack.shape, 2)
             -- attack.fixture:setRestitution(0.9)
