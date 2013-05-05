@@ -10,7 +10,9 @@ local Collider = require("src/collider")
 Tentacle = require("src/tentacle")
 ATL.path = "tmx/"
 
-local Game = {}
+local Game = {
+    id = 0,
+}
 
 local entityTypes = {
     Player   = Player,
@@ -34,6 +36,8 @@ function Game:init()
 end
 
 function Game:register(entity)
+    self.id = self.id + 1
+    entity.id = self.id
     self.collider:register(entity)
     table.insert(self.entities, entity)
     print(string.format("Registered %s", tostring(entity)))
@@ -51,8 +55,17 @@ function Game:updateCamera()
 end
 
 function Game:update(dt)
-    for i, entity in pairs(self.entities) do
-        entityTypes[entity:type()].update(entity, dt, self)
+    for i=#self.entities, 1, -1 do
+        local entity = self.entities[i]
+        if entity.destroyed then
+            print("Removing " .. tostring(entity))
+            table.remove(self.entities, i)
+        else
+            local Entity = entityTypes[entity:type()]
+            if Entity then
+                Entity.update(entity, dt, self)
+            end
+        end
     end
     self.world:update(dt)
     self:updateCamera()
@@ -62,7 +75,10 @@ function Game:draw()
     self.cam:draw(function()
         self.map:draw()
         for i, entity in pairs(self.entities) do
-            entityTypes[entity:type()].draw(entity)
+            local Entity = entityTypes[entity:type()]
+            if Entity then
+                Entity.draw(entity)
+            end
         end
     end)
 end

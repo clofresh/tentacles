@@ -4,7 +4,7 @@ end}
 
 function Critter:type() return "Critter" end
 function Critter:__tostring()
-    return string.format("%s(%s, %s)", self:type(), self.body:getPosition())
+    return string.format("%s[%s]", self:type(), self.id)
 end
 
 function Critter.update(critter, dt, game)

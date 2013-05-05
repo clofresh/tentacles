@@ -26,7 +26,7 @@ mouse.update = function(player, dt, game)
             attack.pivot = love.physics.newRevoluteJoint(attack.body,
                 player.body, player.body:getX(), player.body:getY(), false)
             player.attack = attack
-            game.collider:register(attack)
+            game:register(attack)
         else
             attack.mouseJoint:setTarget(x, y)
         end

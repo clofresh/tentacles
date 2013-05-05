@@ -1,11 +1,10 @@
 local Collider = {
-    id = 0,
     entities = {}
 }
 
 function Collider:register(entity)
-    Collider.id = Collider.id + 1
-    local id = Collider.id
+    assert(entity.id)
+    local id = entity.id
     if entity.fixture then
         entity.fixture:setUserData(id)
     elseif entity.segments then

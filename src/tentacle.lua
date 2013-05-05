@@ -7,7 +7,7 @@ Tentacle.COLLISION_GROUP = -100
 
 function Tentacle:type() return "Tentacle" end
 function Tentacle:__tostring()
-    return string.format("%s(%s, %s)", self:type(), self.anchor:getPosition())
+    return string.format("%s[%s]", self:type(), self.id)
 end
 
 function Tentacle.idle(tentacle, dt, game)
@@ -65,6 +65,9 @@ function Tentacle.applyDamage(tentacle, attack)
     if #tentacle.segments > 0 then
         local segment = tentacle.segments[#tentacle.segments]
         segment.health = segment.health - attack.damage
+        if segment.health <= 0 then
+            segment.destroyed = true
+        end
     end
 end
 
@@ -73,13 +76,21 @@ function Tentacle.update(tentacle, dt, game)
     -- we don't have to worry about the indexes shifting and skipping some
     for i=#tentacle.segments, 1, -1 do
         local segment = tentacle.segments[i]
-        if segment.health <= 0 then
+        if segment.destroyed then
+            print(string.format("%s: removing segment %d",
+                tostring(tentacle), i))
+            segment.pivot:destroy()
             segment.fixture:destroy()
             segment.body:destroy()
             table.remove(tentacle.segments, i)
         end
     end
-    tentacle.state(tentacle, dt, game)
+    tentacle.destroyed = #tentacle.segments == 0
+    if tentacle.destroyed then
+        tentacle.anchor:destroy()
+    else
+        tentacle.state(tentacle, dt, game)
+    end
 end
 
 function Tentacle.draw(tentacle)
