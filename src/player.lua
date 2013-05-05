@@ -11,12 +11,8 @@ end}
 function Player:type() return "Player" end
 
 function Player.update(player, dt, game)
-    local changed = false
     for i, input in pairs(player.inputs) do
-        changed = input.update(player, dt, game) or changed
-    end
-    if changed then
-        game:updateCamera()
+        input.update(player, dt, game)
     end
 end
 

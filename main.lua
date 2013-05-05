@@ -55,6 +55,7 @@ function Game:update(dt)
         entityTypes[entity:type()].update(entity, dt, self)
     end
     self.world:update(dt)
+    self:updateCamera()
 end
 
 function Game:draw()
