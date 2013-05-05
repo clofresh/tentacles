@@ -13,7 +13,15 @@ end
 function Tentacle.idle(tentacle, dt, game)
     if tentacle.idleTime == nil then
         tentacle.idleTime = 0
-    elseif tentacle.idleTime > 10 then
+    end
+
+    local x1, y1, x2, y2 = Tentacle.getRangeBox(tentacle)
+    local nearby = game.collider:findInArea(x1, y1, x2, y2,
+        function(entity)
+            return entity:type() == "Player"
+        end)
+
+    if tentacle.idleTime > 10 or #nearby > 0 then
         tentacle.state = Tentacle.swing
         tentacle.idleTime = 0
         tentacle.swingTime = 0
@@ -22,6 +30,15 @@ function Tentacle.idle(tentacle, dt, game)
     else
         tentacle.idleTime = tentacle.idleTime + dt
     end
+end
+
+function Tentacle.getRangeBox(tentacle)
+    local range = 0
+    local x, y = tentacle.anchor:getWorldCenter()
+    for i, segment in pairs(tentacle.segments) do
+        range = range + segment.segmentLen
+    end
+    return x - range, y - range, x + range, y + range
 end
 
 function Tentacle.swing(tentacle, dt, game)
@@ -119,6 +136,7 @@ function Tentacle.fromTmx(obj, game)
             shape = lp.newRectangleShape(i * segmentLen, 0, segmentLen,
                                          segmentWidth),
             health = 10,
+            segmentLen = segmentLen,
         } 
         segment.fixture = lp.newFixture(segment.body, segment.shape, density)
         segment.fixture:setGroupIndex(Tentacle.COLLISION_GROUP)

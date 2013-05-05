@@ -46,6 +46,20 @@ function Collider:entityFromFixture(fixture)
     return self.entities[fixture:getUserData()]
 end
 
+function Collider:findInArea(x1, y1, x2, y2, shouldInclude)
+    local results = {}
+    local me = self
+    local shouldInclude = shouldInclude or function(entity) return true end
+    self.world:queryBoundingBox(x1, y1, x2, y2, function(fixture)
+        local entity = me:entityFromFixture(fixture)
+        if shouldInclude(entity) then
+            table.insert(results, entity)
+        end
+        return true
+    end)
+    return results
+end
+
 function Collider:beginContact(a, b, contact)
     local entityA = self:entityFromFixture(a)
     local entityB = self:entityFromFixture(b)
