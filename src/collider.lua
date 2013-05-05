@@ -1,6 +1,19 @@
-local Collider = {
-    entities = {}
-}
+local Collider = Class{function(self)
+    self.entities = {}
+    self.world = love.physics.newWorld()
+    local me = self
+    self.world:setCallbacks(function(...)
+        me:beginContact(...)
+    end)
+end}
+
+function Collider:update(dt)
+    self.world:update(dt)
+end
+
+function Collider:newBody(...)
+    return love.physics.newBody(self.world, ...)
+end
 
 function Collider:register(entity)
     assert(entity.id)
@@ -14,7 +27,7 @@ function Collider:register(entity)
     else
         error("Can't register entity")
     end
-    Collider.entities[id] = entity
+    self.entities[id] = entity
 end
 
 function Collider:unregister(entity)
@@ -26,16 +39,16 @@ function Collider:unregister(entity)
     else
         error("Can't unregister entity")
     end
-    Collider.entities[id] = nil
+    self.entities[id] = nil
 end
 
 function Collider:entityFromFixture(fixture)
     return self.entities[fixture:getUserData()]
 end
 
-function Collider.beginContact(a, b, contact)
-    local entityA = Collider:entityFromFixture(a)
-    local entityB = Collider:entityFromFixture(b)
+function Collider:beginContact(a, b, contact)
+    local entityA = self:entityFromFixture(a)
+    local entityB = self:entityFromFixture(b)
     local aType = entityA:type()
     local bType = entityB:type()
     if aType == "Attack" and bType == "Critter" then

@@ -15,7 +15,7 @@ mouse.update = function(player, dt, game)
             end
 
             attack = {
-                body = love.physics.newBody(game.world, x, y, "dynamic"),
+                body = game.collider:newBody(x, y, "dynamic"),
                 shape = love.physics.newRectangleShape(0, 0, 5, player.hitRadius, angle),
                 type = function() return "Attack" end,
                 damage = 1,

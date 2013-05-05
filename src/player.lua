@@ -31,7 +31,7 @@ function Player.fromTmx(obj, game)
     player.hitRadius = 60
     game.player = player
     local pos = player.pos
-    player.body = love.physics.newBody(game.world, pos.x, pos.y, "dynamic")
+    player.body = game.collider:newBody(pos.x, pos.y, "dynamic")
     player.shape = love.physics.newCircleShape(player.radius)
     player.fixture = love.physics.newFixture(player.body, player.shape)
     game:register(player)

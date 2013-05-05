@@ -18,7 +18,7 @@ end
 
 function Critter.fromTmx(obj, game)
     local critter = Critter(obj.properties.step)
-    critter.body = love.physics.newBody(game.world, obj.x, obj.y, "dynamic")
+    critter.body = game.collider:newBody(obj.x, obj.y, "dynamic")
     critter.shape = love.physics.newCircleShape(obj.width / 2)
     critter.fixture = love.physics.newFixture(critter.body, critter.shape, 10)
     critter.fixture:setRestitution(0.7)

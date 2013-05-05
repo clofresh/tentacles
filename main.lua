@@ -21,9 +21,7 @@ local entityTypes = {
 }
 
 function Game:init()
-    self.collider = Collider
-    self.world = love.physics.newWorld()
-    self.world:setCallbacks(self.collider.beginContact)
+    self.collider = Collider()
     self.map = ATL.load("map0.tmx")
     self.map.drawObjects = false
     self.entities = {}
@@ -67,7 +65,7 @@ function Game:update(dt)
             end
         end
     end
-    self.world:update(dt)
+    self.collider:update(dt)
     self:updateCamera()
 end
 

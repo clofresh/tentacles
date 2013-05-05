@@ -115,7 +115,7 @@ function Tentacle.fromTmx(obj, game)
     local segments = {}
     for i = 1, numSegments do
         local segment = {
-            body = lp.newBody(game.world, x, y, "dynamic"),
+            body = game.collider:newBody(x, y, "dynamic"),
             shape = lp.newRectangleShape(i * segmentLen, 0, segmentLen,
                                          segmentWidth),
             health = 10,
@@ -126,7 +126,7 @@ function Tentacle.fromTmx(obj, game)
     end
 
     -- Connect the tentacle segments with joints
-    t.anchor = lp.newBody(game.world, x, y, "static")
+    t.anchor = game.collider:newBody(x, y, "static")
     segments[1].pivot = lp.newRevoluteJoint(t.anchor,
         segments[1].body, x, y, false)
     for i = 2, numSegments do
