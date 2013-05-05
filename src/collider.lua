@@ -1,31 +1,49 @@
-local HC = require("lib/hardoncollider")
+local Collider = {
+    id = 0,
+    entities = {}
+}
 
-local Collider = Class{function(self)
-    self.collidables = {}
-    self.collider = HC(100, function(dt, shapeA, shapeB, dx, dy)
-        local thing1 = self.collidables[shapeA]
-        local thing2 = self.collidables[shapeB]
-        if thing1 and thing1:canCollide(thing2) then
-            thing1.pos = thing1.pos + vector(dx, dy)
+function Collider:register(entity)
+    Collider.id = Collider.id + 1
+    local id = Collider.id
+    if entity.fixture then
+        entity.fixture:setUserData(id)
+    elseif entity.segments then
+        for i, s in pairs(entity.segments) do
+            s.fixture:setUserData(id)
         end
-        if thing2 and thing2:canCollide(thing1) then
-            thing2.pos = thing2.pos - vector(dx, dy)
-        end
-    end)
-end}
-
-function Collider:update(dt)
-    self.collider:update(dt)
+    else
+        error("Can't register entity")
+    end
+    Collider.entities[id] = entity
 end
 
-function Collider:register(thing)
-    thing.hitShape = self.collider:addCircle(thing.pos.x, thing.pos.y, thing.radius)
-    self.collidables[thing.hitShape] = thing
+function Collider:unregister(entity)
+    local id
+    if entity.fixture then
+        id = entity.fixture:getUserData()
+    elseif entity.segments then
+        id = entity.segments[1].fixture:getUserData()
+    else
+        error("Can't unregister entity")
+    end
+    Collider.entities[id] = nil
 end
 
-function Collider:unregister(thing)
-    self.collider:remove(thing.hitShape)
-    self.collidables[thing.hitShape] = nil
+function Collider:entityFromFixture(fixture)
+    return self.entities[fixture:getUserData()]
+end
+
+function Collider.beginContact(a, b, contact)
+    local entityA = Collider:entityFromFixture(a)
+    local entityB = Collider:entityFromFixture(b)
+    if entityA:type() == "Attack" and entityB:type() == "Critter" then
+        local hit = vector(contact:getNormal())
+        local toHit = b:getBody()
+        local contactPosX, contactPosY = contact:getPositions()
+        contact:setRestitution(20)
+        toHit:applyLinearImpulse(hit.x, hit.y, contactPosX, contactPosY)
+    end
 end
 
 return Collider

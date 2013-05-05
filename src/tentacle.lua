@@ -6,92 +6,87 @@ end}
 Tentacle.COLLISION_GROUP = -100
 
 function Tentacle:type() return "Tentacle" end
-
-function Tentacle:canCollide(other)
-    return false
+function Tentacle:__tostring()
+    return string.format("%s(%s, %s)", self:type(), self.anchor:getPosition())
 end
 
-function Tentacle.idle(critter, dt, game)
-    if critter.idleTime == nil then
-        critter.idleTime = 0
-    elseif critter.idleTime > 10 then
-        critter.state = Tentacle.swing
-        critter.idleTime = 0
-        critter.swingTime = 0
-        critter.swingMaxTime = 2
+function Tentacle.idle(tentacle, dt, game)
+    if tentacle.idleTime == nil then
+        tentacle.idleTime = 0
+    elseif tentacle.idleTime > 10 then
+        tentacle.state = Tentacle.swing
+        tentacle.idleTime = 0
+        tentacle.swingTime = 0
+        tentacle.swingMaxTime = 2
         print("Starting swing")
     else
-        critter.idleTime = critter.idleTime + dt        
+        tentacle.idleTime = tentacle.idleTime + dt
     end
 end
 
-function Tentacle.swing(critter, dt, game)
-    if critter.swingTime > critter.swingMaxTime then
-        for i, seg in pairs(critter.segments) do
+function Tentacle.swing(tentacle, dt, game)
+    if tentacle.swingTime > tentacle.swingMaxTime then
+        for i, seg in pairs(tentacle.segments) do
             seg.body:setAngularVelocity(0)
         end
-        critter.state = Tentacle.idle
-        critter.swingTime = nil
-        critter.swingMaxTime = nil
+        tentacle.state = Tentacle.idle
+        tentacle.swingTime = nil
+        tentacle.swingMaxTime = nil
         print("Ending swing")
     else
-        critter.swingTime = critter.swingTime + dt
-        for i, seg in pairs(critter.segments) do
+        tentacle.swingTime = tentacle.swingTime + dt
+        for i, seg in pairs(tentacle.segments) do
             seg.body:setAngularVelocity((2*math.pi) * 3)
         end
     end
 end
 
-function Tentacle.extend(critter, dt, game)
-    local target = critter.target
+function Tentacle.extend(tentacle, dt, game)
+    local target = tentacle.target
     if not target then
-        critter.state = Tentacle.shink
+        tentacle.state = Tentacle.shink
     end
-    if critter.w < 100 then
-        critter.w = critter.w + 1
+    if tentacle.w < 100 then
+        tentacle.w = tentacle.w + 1
     else
-        critter.state = Tentacle.shrink
+        tentacle.state = Tentacle.shrink
     end
 end
 
-function Tentacle.shrink(critter, dt, game)
-    if critter.w >= 10 then
-        critter.w = critter.w - 1
+function Tentacle.shrink(tentacle, dt, game)
+    if tentacle.w >= 10 then
+        tentacle.w = tentacle.w - 1
     else
-        critter.state = Tentacle.idle
+        tentacle.state = Tentacle.idle
     end
 end
 
-function Tentacle.update(critter, dt, game)
-    critter.state(critter, dt, game)
+function Tentacle.update(tentacle, dt, game)
+    tentacle.state(tentacle, dt, game)
 end
 
-function Tentacle.draw(critter)
-    for i, seg in pairs(critter.segments) do
+function Tentacle.draw(tentacle)
+    for i, seg in pairs(tentacle.segments) do
         love.graphics.polygon("fill",
             seg.body:getWorldPoints(seg.shape:getPoints()))
     end
 end
 
 function Tentacle.fromTmx(obj, game)
-    if obj.type ~= 'Tentacle' then
-        return
-    end
-    if not game.critters then
-        game.critters = {}
-    end
+    -- Initialize the variables we'll be operating on
+    local lp = love.physics
     local t = Tentacle()
     local x, y = obj.x, obj.y
-    local segments = {}
-    local segment
-    local lp = love.physics
     local numSegments = obj.properties.numSegments
     local length = obj.properties.length
     local density = obj.properties.density or 100
-    local segmentLen = length / numSegments
     local segmentWidth = obj.properties.segmentWidth
+    local segmentLen = length / numSegments
+
+    -- Generate the tentacle segments
+    local segments = {}
     for i = 1, numSegments do
-        segment = {
+        local segment = {
             body = lp.newBody(game.world, x, y, "dynamic"),
             shape = lp.newRectangleShape(i * segmentLen, 0, segmentLen,
                                          segmentWidth),
@@ -100,6 +95,8 @@ function Tentacle.fromTmx(obj, game)
         segment.fixture:setGroupIndex(Tentacle.COLLISION_GROUP)
         table.insert(segments, segment)
     end
+
+    -- Connect the tentacle segments with joints
     t.anchor = lp.newBody(game.world, x, y, "static")
     segments[1].pivot = lp.newRevoluteJoint(t.anchor,
         segments[1].body, x, y, false)
@@ -110,10 +107,10 @@ function Tentacle.fromTmx(obj, game)
             x + segmentLen * (i - 1), y, false)
         s.pivot:setLimits(-math.pi/2, math.pi/2)
     end
+
+    -- Store everything in the proper place
     t.segments = segments
-    game.collider:register(t)
-    table.insert(game.critters, t)
-    print(string.format("Registered tentacle at (%s, %s)", x, y))
+    game:register(t)
 end
 
 return Tentacle

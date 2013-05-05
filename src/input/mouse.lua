@@ -1,8 +1,7 @@
 local mouse = {}
 
-mouse.update = function(dt, game)
+mouse.update = function(player, dt, game)
     local changed = false
-    local player = game.player
     local attack = player.attack
     if love.mouse.isDown("l") then
         local x, y = game.cam:mousepos()
@@ -25,7 +24,7 @@ mouse.update = function(dt, game)
             attack.mouseJoint = love.physics.newMouseJoint(attack.body, x, y)
             attack.pivot = love.physics.newRevoluteJoint(attack.body,
                 player.body, player.body:getX(), player.body:getY(), false)
-            game.player.attack = attack
+            player.attack = attack
             game.collider:register(attack)
         else
             attack.mouseJoint:setTarget(x, y)

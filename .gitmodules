@@ -7,6 +7,3 @@
 [submodule "lib/dong"]
 	path = lib/dong
 	url = git://github.com/josefnpat/dong.git
-[submodule "lib/hardoncollider"]
-	path = lib/hardoncollider
-	url = git://github.com/vrld/HardonCollider.git
