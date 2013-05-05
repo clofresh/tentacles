@@ -24,12 +24,27 @@ local entities = {
 function Collider:register(entity)
     Collider.id = Collider.id + 1
     local id = Collider.id
-    entity.fixture:setUserData(id)
+    if entity.fixture then
+        entity.fixture:setUserData(id)
+    elseif entity.segments then
+        for i, s in pairs(entity.segments) do
+            s.fixture:setUserData(id)
+        end
+    else
+        error("Can't register entity")
+    end
     Collider.entities[id] = entity
 end
 
 function Collider:unregister(entity)
-    local id = entity.fixture:getUserData()
+    local id
+    if entity.fixture then
+        id = entity.fixture:getUserData()
+    elseif entity.segments then
+        id = entity.segments[1].fixture:getUserData()
+    else
+        error("Can't unregister entity")
+    end
     Collider.entities[id] = nil
 end
 

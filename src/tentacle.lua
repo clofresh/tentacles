@@ -1,12 +1,9 @@
 local Tentacle = {}
 
-Tentacle = Class{function(self, pos, w, h, range)
-    self.pos = pos
-    self.w = w or 16
-    self.h = h or 128
-    self.range = range or 100
-    self.state = Tentacle.idle
+Tentacle = Class{function(self, state)
+    self.state = state or Tentacle.idle
 end}
+Tentacle.COLLISION_GROUP = -100
 
 function Tentacle:type() return "Tentacle" end
 
@@ -30,14 +27,18 @@ end
 
 function Tentacle.swing(critter, dt, game)
     if critter.swingTime > critter.swingMaxTime then
-        critter.tentacle:setAngularVelocity(0)
+        for i, seg in pairs(critter.segments) do
+            seg.body:setAngularVelocity(0)
+        end
         critter.state = Tentacle.idle
         critter.swingTime = nil
         critter.swingMaxTime = nil
         print("Ending swing")
     else
         critter.swingTime = critter.swingTime + dt
-        critter.tentacle:setAngularVelocity((2*math.pi) * 3)
+        for i, seg in pairs(critter.segments) do
+            seg.body:setAngularVelocity((2*math.pi) * 3)
+        end
     end
 end
 
@@ -66,32 +67,53 @@ function Tentacle.update(critter, dt, game)
 end
 
 function Tentacle.draw(critter)
-    love.graphics.polygon("fill",
-        critter.tentacle:getWorldPoints(critter.shape:getPoints()))
-end
-
-function Tentacle.register(critter, game)
-    local pos = critter.pos
-    critter.tentacle = love.physics.newBody(game.world, pos.x, pos.y, "dynamic")
-    critter.tentacle:setAngularDamping(5)
-    critter.anchor = love.physics.newBody(game.world, pos.x, pos.y, "static")
-    critter.pivot = love.physics.newRevoluteJoint(critter.tentacle,
-        critter.anchor, pos.x, pos.y, false)
-    critter.shape = love.physics.newRectangleShape(0, critter.h / 2, critter.w, critter.h)
-    critter.fixture = love.physics.newFixture(critter.tentacle, critter.shape, 100)
-    game.collider:register(critter)
-    table.insert(game.critters, critter)
-    print(string.format("Registered tentacle at (%s, %s)", pos.x, pos.y))
+    for i, seg in pairs(critter.segments) do
+        love.graphics.polygon("fill",
+            seg.body:getWorldPoints(seg.shape:getPoints()))
+    end
 end
 
 function Tentacle.fromTmx(obj, game)
-    if obj.type == 'Tentacle' then
-        if not game.critters then
-            game.critters = {}
-        end
-        local critter = Tentacle(vector(obj.x, obj.y))
-        Tentacle.register(critter, game)
+    if obj.type ~= 'Tentacle' then
+        return
     end
+    if not game.critters then
+        game.critters = {}
+    end
+    local t = Tentacle()
+    local x, y = obj.x, obj.y
+    local segments = {}
+    local segment
+    local lp = love.physics
+    local numSegments = obj.properties.numSegments
+    local length = obj.properties.length
+    local density = obj.properties.density or 100
+    local segmentLen = length / numSegments
+    local segmentWidth = obj.properties.segmentWidth
+    for i = 1, numSegments do
+        segment = {
+            body = lp.newBody(game.world, x, y, "dynamic"),
+            shape = lp.newRectangleShape(i * segmentLen, 0, segmentLen,
+                                         segmentWidth),
+        } 
+        segment.fixture = lp.newFixture(segment.body, segment.shape, density)
+        segment.fixture:setGroupIndex(Tentacle.COLLISION_GROUP)
+        table.insert(segments, segment)
+    end
+    t.anchor = lp.newBody(game.world, x, y, "static")
+    segments[1].pivot = lp.newRevoluteJoint(t.anchor,
+        segments[1].body, x, y, false)
+    for i = 2, numSegments do
+        local s = segments[i]
+        local sPrev = segments[i - 1]
+        s.pivot = lp.newRevoluteJoint(sPrev.body, s.body,
+            x + segmentLen * (i - 1), y, false)
+        s.pivot:setLimits(-math.pi/2, math.pi/2)
+    end
+    t.segments = segments
+    game.collider:register(t)
+    table.insert(game.critters, t)
+    print(string.format("Registered tentacle at (%s, %s)", x, y))
 end
 
 return Tentacle
