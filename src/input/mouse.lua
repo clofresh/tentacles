@@ -1,41 +1,11 @@
 local mouse = {}
 
 mouse.update = function(player, dt, game)
-    local changed = false
-    local attack = player.attack
     if love.mouse.isDown("l") then
         local x, y = game.cam:mousepos()
-        if not attack then
-            local h = vector(x, y) - vector(player.body:getPosition())
-            local angle
-            if x < player.body:getX() then
-                angle = math.acos(h.y / h:len())
-            else
-                angle = (2*math.pi) - math.acos(h.y / h:len())
-            end
-
-            attack = {
-                body = game.collider:newBody(x, y, "dynamic"),
-                shape = love.physics.newRectangleShape(0, 0, 5, player.hitRadius, angle),
-                type = function() return "Attack" end,
-                damage = 1,
-            }
-            attack.fixture = love.physics.newFixture(attack.body, attack.shape, 2)
-            -- attack.fixture:setRestitution(0.9)
-            attack.mouseJoint = love.physics.newMouseJoint(attack.body, x, y)
-            attack.pivot = love.physics.newRevoluteJoint(attack.body,
-                player.body, player.body:getX(), player.body:getY(), false)
-            player.attack = attack
-            game:register(attack)
-        else
-            attack.mouseJoint:setTarget(x, y)
-        end
-    elseif attack then
-        game.collider:unregister(attack)
-        attack.body:destroy()
-        player.attack = nil
+        local dir = vector(x, y) - vector(player.body:getPosition())
+        player.weapon:primaryAttack(dir, player, dt, game)
     end
-    return changed
 end
 
 return mouse

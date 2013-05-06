@@ -1,10 +1,8 @@
 local dong = require("lib/dong/dong")
 local joystick = {}
 
-joystick.update = function(player, dt)
+joystick.update = function(player, dt, game)
     -- xbox controller movement input
-    local changed = false
-
     local lsX, lsY
     if love._os == "Windows" then
         lsX, lsY = dong.ls(1)
@@ -15,30 +13,34 @@ joystick.update = function(player, dt)
     end
 
     if lsX and lsY then
+        local dx = 0
+        local dy = 0
         if math.abs(lsX) > 0.1 then
-            player.pos.x = player.pos.x + dt * player.speed * lsX
-            changed = true
+            dx = player.speed * lsX
         end
-
         if math.abs(lsY) > 0.1 then
-            player.pos.y = player.pos.y + dt * player.speed * lsY
-            changed = true
+            dy = player.speed * lsY
+        end
+        if dx ~= 0 or dy ~= 0 then
+            player.velocity = vector(dx, dy)
         end
     end
 
     -- xbox controller attack input
-    local swingX = 0
-    local swingY = 0
     if rsX and rsY then
+        local swingX = 0
+        local swingY = 0
         if math.abs(rsX) > 0.1 then
             swingX = rsX
         end
         if math.abs(rsY) > 0.1 then
             swingY = rsY
         end
+        if swingX ~= 0 or swingY ~= 0 then
+            local dir = vector(swingX, swingY):normalized() * (player.radius + player.hitRadius)
+            player.weapon:primaryAttack(dir, player, dt, game)
+        end
     end
-
-    return changed
 end
 
 return joystick
