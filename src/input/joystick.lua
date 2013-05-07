@@ -23,6 +23,9 @@ joystick.update = function(player, dt, game)
         end
         if dx ~= 0 or dy ~= 0 then
             player.velocity = vector(dx, dy)
+            if dx ~= 0 then
+                player.dir = math.atan(dy / dx)
+            end
         end
     end
 
@@ -37,7 +40,7 @@ joystick.update = function(player, dt, game)
             swingY = rsY
         end
         if swingX ~= 0 or swingY ~= 0 then
-            local dir = vector(swingX, swingY):normalized() * (player.radius + player.hitRadius)
+            local dir = vector(swingX, swingY):normalized() * player.hitRadius
             player.weapon:primaryAttack(dir, player, dt, game)
         end
     end

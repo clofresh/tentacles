@@ -29,7 +29,7 @@ function Game:init()
         entityTypes[obj.type].fromTmx(obj, self)
     end
     assert(self.player)
-    self.cam = Camera(love.graphics.getWidth() / 2, self.player.pos.y)
+    self.cam = Camera(love.graphics.getWidth() / 2, self.player.body:getY())
     self:updateCamera()
 end
 
