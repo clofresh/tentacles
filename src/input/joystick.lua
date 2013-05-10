@@ -23,8 +23,10 @@ joystick.update = function(player, dt, game)
         end
         if dx ~= 0 or dy ~= 0 then
             player.velocity = vector(dx, dy)
-            if dx ~= 0 then
+            if dx >= 0 then
                 player.dir = math.atan(dy / dx)
+            else
+                player.dir = math.atan(dy / dx) + (math.pi)
             end
         end
     end

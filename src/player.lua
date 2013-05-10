@@ -24,14 +24,15 @@ function Player.update(player, dt, game)
 end
 
 function Player.draw(player)
-    local x1, y1, x2, y2, x3, y3, x4, y4 = player.shape:getPoints()
+    local x1, y1, x2, y2, x3, y3, x4, y4, x5, y5 = player.shape:getPoints()
     local dir = player.dir
     x1, y1 = rotate(x1, y1, dir)
     x2, y2 = rotate(x2, y2, dir)
     x3, y3 = rotate(x3, y3, dir)
     x4, y4 = rotate(x4, y4, dir)
+    x5, y5 = rotate(x5, y5, dir)
     love.graphics.polygon("fill", player.body:getWorldPoints(x1, y1,
-        x2, y2, x3, y3, x4, y4))
+        x2, y2, x3, y3, x4, y4, x5, y5))
     player.weapon:draw(player)
 end
 
@@ -48,7 +49,13 @@ function Player.fromTmx(obj, game)
     player.dir = 0
     game.player = player
     player.body = game.collider:newBody(obj.x, obj.y, "dynamic")
-    player.shape = love.physics.newRectangleShape(player.w, player.h)
+    player.shape = love.physics.newPolygonShape(
+        -player.w / 2, -player.h / 2,
+        player.w / 2, -player.h / 2,
+        player.w * .75, 0,
+        player.w / 2, player.h / 2,
+        -player.w / 2, player.h / 2
+    )
     player.fixture = love.physics.newFixture(player.body, player.shape)
     player.body:setAngularDamping(5)
     game:register(player)
