@@ -4,9 +4,10 @@ local Gamestate = require("lib/hump/gamestate")
 vector = require("lib/hump/vector")
 Class = require("lib/hump/class")
 
-local Player = require("src/player")
-local Critter = require("src/critter")
-local Collider = require("src/collider")
+Player   = require("src/player")
+Stick    = require("src/weapon/stick")
+Critter  = require("src/critter")
+Collider = require("src/collider")
 Tentacle = require("src/tentacle")
 ATL.path = "tmx/"
 
@@ -18,6 +19,7 @@ local entityTypes = {
     Player   = Player,
     Critter  = Critter,
     Tentacle = Tentacle,
+    Stick    = Stick,
 }
 
 function Game:init()
@@ -33,9 +35,13 @@ function Game:init()
     self:updateCamera()
 end
 
-function Game:register(entity)
+function Game:getId()
     self.id = self.id + 1
-    entity.id = self.id
+    return self.id
+end
+
+function Game:register(entity)
+    entity.id = self:getId()
     self.collider:register(entity)
     table.insert(self.entities, entity)
     print(string.format("Registered %s", tostring(entity)))

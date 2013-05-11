@@ -1,11 +1,10 @@
 local joystick = require("src/input/joystick")
 local keyboard = require("src/input/keyboard")
 local mouse    = require("src/input/mouse")
-local Stick    = require("src/weapon/stick")
 
-local Player = Class{function(self)
+local Player = Class{function(self, weapon)
     self.inputs = {joystick, keyboard, mouse}
-    self.weapon = Stick()
+    self.weapon = weapon
 end}
 
 function Player:type() return "Player" end
@@ -35,7 +34,9 @@ function rotate(x, y, r)
 end
 
 function Player.fromTmx(obj, game)
-    local player = Player()
+    local weapon = Stick()
+    weapon.id = game:getId()
+    local player = Player(weapon)
     player.speed = 128
     player.hitRadius = 60
     player.w = 24
@@ -50,7 +51,7 @@ function Player.fromTmx(obj, game)
         player.w / 2, player.h / 2,
         -player.w / 2, player.h / 2
     )
-    player.fixture = love.physics.newFixture(player.body, player.shape)
+    player.fixture = love.physics.newFixture(player.body, player.shape, 10)
     player.body:setAngularDamping(5)
     game:register(player)
 end
