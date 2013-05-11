@@ -23,10 +23,15 @@ joystick.update = function(player, dt, game)
         end
         if dx ~= 0 or dy ~= 0 then
             player.velocity = vector(dx, dy)
+            local targetAngle
             if dx >= 0 then
-                player.dir = math.atan(dy / dx)
+                targetAngle = math.atan(dy / dx)
             else
-                player.dir = math.atan(dy / dx) + (math.pi)
+                targetAngle = math.atan(dy / dx) + (math.pi)
+            end
+            local angleDiff = targetAngle - player.dir
+            if angleDiff ~= 0 then
+                player.body:setAngle(targetAngle)
             end
         end
     end

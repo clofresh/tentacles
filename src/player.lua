@@ -11,6 +11,7 @@ end}
 function Player:type() return "Player" end
 
 function Player.update(player, dt, game)
+    player.dir = player.body:getAngle()
     for i, input in pairs(player.inputs) do
         input.update(player, dt, game)
     end
@@ -24,15 +25,8 @@ function Player.update(player, dt, game)
 end
 
 function Player.draw(player)
-    local x1, y1, x2, y2, x3, y3, x4, y4, x5, y5 = player.shape:getPoints()
-    local dir = player.dir
-    x1, y1 = rotate(x1, y1, dir)
-    x2, y2 = rotate(x2, y2, dir)
-    x3, y3 = rotate(x3, y3, dir)
-    x4, y4 = rotate(x4, y4, dir)
-    x5, y5 = rotate(x5, y5, dir)
-    love.graphics.polygon("fill", player.body:getWorldPoints(x1, y1,
-        x2, y2, x3, y3, x4, y4, x5, y5))
+    love.graphics.polygon("fill", player.body:getWorldPoints(
+                                        player.shape:getPoints()))
     player.weapon:draw(player)
 end
 
