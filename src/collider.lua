@@ -74,6 +74,10 @@ function Collider:beginContact(a, b, contact)
         Tentacle.applyDamage(entityB, entityA)
     elseif aType == "Tentacle" and bType == "Attack" then
         Tentacle.applyDamage(entityA, entityB)
+    elseif aType == "Player" and bType == "Tentacle" then
+        Player.applyDamage(entityA, entityB)
+    elseif aType == "Tentacle" and bType == "Player" then
+        Player.applyDamage(entityB, entityA)
     end
 end
 

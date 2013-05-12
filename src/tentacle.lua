@@ -2,6 +2,7 @@ local Tentacle = {}
 
 Tentacle = Class{function(self, state)
     self.state = state or Tentacle.idle
+    self.damage = 1
 end}
 Tentacle.COLLISION_GROUP = -100
 

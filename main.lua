@@ -11,9 +11,12 @@ Collider = require("src/collider")
 Tentacle = require("src/tentacle")
 ATL.path = "tmx/"
 
+Fonts = {}
+
 local Game = {
     id = 0,
 }
+local GameOver = {}
 
 local entityTypes = {
     Player   = Player,
@@ -23,6 +26,11 @@ local entityTypes = {
 }
 
 function Game:init()
+    -- Font from http://openfontlibrary.org/en/font/leo-arrow
+    Fonts.normal = love.graphics.newFont("fonts/leo_arrow.ttf", 24);
+    Fonts.large = love.graphics.newFont("fonts/leo_arrow.ttf", 36);
+
+    -- Set up the map
     self.collider = Collider()
     self.map = ATL.load("map0.tmx")
     self.map.drawObjects = false
@@ -31,6 +39,8 @@ function Game:init()
         entityTypes[obj.type].fromTmx(obj, self)
     end
     assert(self.player)
+
+    -- Set up the camera
     self.cam = Camera(love.graphics.getWidth() / 2, self.player.body:getY())
     self:updateCamera()
 end
@@ -73,6 +83,9 @@ function Game:update(dt)
     end
     self.collider:update(dt)
     self:updateCamera()
+    if self.player.destroyed then
+        Gamestate.switch(GameOver)
+    end
 end
 
 function Game:draw()
@@ -85,6 +98,33 @@ function Game:draw()
             end
         end
     end)
+end
+
+function GameOver:draw()
+    local r, g, b, a = love.graphics.getColor()
+    love.graphics.setColor(255, 0, 0)
+    Game:draw()
+    local textWidth = 800
+    local textX = (love.graphics.getWidth() / Game.cam.scale / 2) - 64
+    local textY = love.graphics.getHeight() / Game.cam.scale / 2
+
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.setFont(Fonts.large)
+    love.graphics.printf("Game Over.", textX, textY, textWidth, "left")
+    love.graphics.setFont(Fonts.normal)
+    love.graphics.printf("Press Enter to continue", textX, textY + 28,
+                         textWidth, "left")
+    love.graphics.setColor(r, g, b, a)
+end
+
+function GameOver:keyreleased(key, code)
+    if key == 'return' then
+        Game.player.destroyed = false
+        Game.player.health = 3
+        Game.player.body:setPosition(Game.playerStart.x, Game.playerStart.y)
+        print("restarting")
+        Gamestate.switch(Game)
+    end
 end
 
 function love.load()

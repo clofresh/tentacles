@@ -5,6 +5,7 @@ local mouse    = require("src/input/mouse")
 local Player = Class{function(self, weapon)
     self.inputs = {joystick, keyboard, mouse}
     self.weapon = weapon
+    self.health = 3
 end}
 
 function Player:type() return "Player" end
@@ -29,6 +30,15 @@ function Player.draw(player)
     player.weapon:draw(player)
 end
 
+function Player.applyDamage(player, attack)
+    if attack.damage then
+        player.health = player.health - attack.damage
+        if player.health <= 0 then
+            player.destroyed = true
+        end
+    end
+end
+
 function Player.fromTmx(obj, game)
     local weapon = Stick()
     weapon.id = game:getId()
@@ -50,6 +60,7 @@ function Player.fromTmx(obj, game)
     player.fixture = love.physics.newFixture(player.body, player.shape, 10)
     player.body:setAngularDamping(5)
     game:register(player)
+    game.playerStart = vector(obj.x, obj.y)
 end
 
 return Player
