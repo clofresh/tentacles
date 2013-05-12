@@ -9,6 +9,16 @@ local Player = Class{function(self, weapon)
 end}
 
 function Player:type() return "Player" end
+function Player:destroy()
+    self.weapon:destroy()
+    self.weapon = nil
+    self.fixture:destroy()
+    self.fixture = nil
+    self.body:destroy()
+    self.body = nil
+    self.shape = nil
+    self.inputs = nil
+end
 
 function Player.update(player, dt, game)
     player.dir = player.body:getAngle()

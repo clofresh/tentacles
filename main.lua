@@ -27,22 +27,34 @@ local entityTypes = {
 
 function Game:init()
     -- Font from http://openfontlibrary.org/en/font/leo-arrow
+    Fonts.small = love.graphics.newFont("fonts/leo_arrow.ttf", 12);
     Fonts.normal = love.graphics.newFont("fonts/leo_arrow.ttf", 24);
     Fonts.large = love.graphics.newFont("fonts/leo_arrow.ttf", 36);
 
     -- Set up the map
-    self.collider = Collider()
-    self.map = ATL.load("map0.tmx")
-    self.map.drawObjects = false
-    self.entities = {}
-    for i, obj in pairs(self.map("units").objects) do
-        entityTypes[obj.type].fromTmx(obj, self)
-    end
-    assert(self.player)
+    self.map = self:loadMap("map0.tmx")
 
     -- Set up the camera
     self.cam = Camera(love.graphics.getWidth() / 2, self.player.body:getY())
     self:updateCamera()
+end
+
+function Game:loadMap(map)
+    map = ATL.load(map)
+    map.drawObjects = false
+
+    if self.collider then
+        self.collider:destroy()
+        self.collider = nil
+    end
+    self.collider = Collider()
+
+    self.entities = {}
+    for i, obj in pairs(map("units").objects) do
+        entityTypes[obj.type].fromTmx(obj, self)
+    end
+    assert(self.player)
+    return map
 end
 
 function Game:getId()
@@ -106,15 +118,17 @@ function Game:draw()
             end
         end
     end)
+
+    love.graphics.setFont(Fonts.small)
+    love.graphics.print(
+        string.format("Mem: %dKB", math.floor(collectgarbage("count"))),
+        1, 12
+    )
 end
 
 function Game:enter(prevState, status)
     if status == "restart" then
-        for i, obj in pairs(self.map("units").objects) do
-            if obj.type == "Tentacle" then
-                entityTypes[obj.type].fromTmx(obj, self)
-            end
-        end
+        self.map = self:loadMap("map0.tmx")
     end
 end
 

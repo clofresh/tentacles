@@ -42,6 +42,20 @@ function Collider:unregister(entity)
     self.entities[id] = nil
 end
 
+function Collider:destroy()
+    for i=#self.entities, 1, -1 do
+        local entity = self.entities[i]
+        if entity then
+            entity:destroy()
+        end
+        table.remove(self.entities, i)
+    end
+    self.entities = nil
+    self.world:setCallbacks(nil, nil, nil, nil)
+    self.world:destroy()
+    self.world = nil
+end
+
 function Collider:entityFromFixture(fixture)
     return self.entities[fixture:getUserData()]
 end

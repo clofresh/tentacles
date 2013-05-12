@@ -9,6 +9,26 @@ Stick = Class{function(self)
 end}
 
 function Stick:type() return "Attack" end
+function Stick:destroy()
+    if self.dJoint then
+        self.dJoint:destroy()
+        self.dJoint = nil
+    end
+    if self.jRoint then
+        self.rJoint:destroy()
+        self.rJoint = nil
+    end
+    if self.fixture then
+        self.fixture:destroy()
+        self.fixture = nil
+    end
+    if self.body then
+        self.body:destroy()
+        self.body = nil
+    end
+    self.shape = nil
+    self.state = nil
+end
 
 function Stick.idle(stick, player, dt, game)
     if stick.shouldSwing then
@@ -37,13 +57,7 @@ function Stick.swing(stick, player, dt, game)
         stick.cooldownTime = 0
         stick.swingTime = nil
         game.collider:unregister(stick)
-        stick.dJoint:destroy()
-        stick.rJoint:destroy()
-        stick.fixture:destroy()
-        stick.body:destroy()
-        stick.fixture = nil
-        stick.body = nil
-        stick.shape = nil
+        stick:destroy()
     else
         stick.swingTime = stick.swingTime + dt
         stick.body:applyTorque(stick.torque)

@@ -10,6 +10,21 @@ function Tentacle:type() return "Tentacle" end
 function Tentacle:__tostring()
     return string.format("%s[%s]", self:type(), self.id)
 end
+function Tentacle:destroy()
+    for i=#self.segments, 1, -1 do
+        local segment = self.segments[i]
+        segment.fixture:destroy()
+        segment.fixture = nil
+        segment.body:destroy()
+        segment.body = nil
+        segment.shape = nil
+        segment.pivot = nil
+        table.remove(self.segments, i)
+    end
+    self.segments = nil
+    self.anchor:destroy()
+    self.state = nil
+end
 
 function Tentacle.idle(tentacle, dt, game)
     if tentacle.idleTime == nil then

@@ -6,6 +6,13 @@ function Critter:type() return "Critter" end
 function Critter:__tostring()
     return string.format("%s[%s]", self:type(), self.id)
 end
+function Critter:destroy()
+    self.fixture:destroy()
+    self.fixture = nil
+    self.body:destroy()
+    self.body = nil
+    self.shape = nil
+end
 
 function Critter.update(critter, dt, game)
     critter.body:setLinearVelocity(math.random(-critter.step, critter.step), math.random(-critter.step, critter.step))
