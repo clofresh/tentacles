@@ -22,7 +22,7 @@ function Tentacle:destroy()
         table.remove(self.segments, i)
     end
     self.segments = nil
-    self.anchor:destroy()
+    self.anchor = nil
     self.state = nil
 end
 

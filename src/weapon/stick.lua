@@ -78,6 +78,9 @@ function Stick:primaryAttack()
 end
 
 function Stick.update(stick, player, dt, game)
+    if not stick.state then
+        stick.state = Stick.idle
+    end
     stick.state(stick, player, dt, game)
     stick.shouldSwing = false
 end
