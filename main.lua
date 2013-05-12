@@ -69,6 +69,7 @@ function Game:updateCamera()
 end
 
 function Game:update(dt)
+    local numTentacles = 0
     for i=#self.entities, 1, -1 do
         local entity = self.entities[i]
         if entity.destroyed then
@@ -79,12 +80,19 @@ function Game:update(dt)
             if Entity then
                 Entity.update(entity, dt, self)
             end
+            if entity:type() == "Tentacle" then
+                numTentacles = numTentacles + 1
+            end
         end
     end
     self.collider:update(dt)
     self:updateCamera()
+
+    -- Check if we should change game state
     if self.player.destroyed then
-        Gamestate.switch(GameOver)
+        Gamestate.switch(GameOver, "died")
+    elseif numTentacles == 0 then
+        Gamestate.switch(GameOver, "won")
     end
 end
 
@@ -100,6 +108,20 @@ function Game:draw()
     end)
 end
 
+function Game:enter(prevState, status)
+    if status == "restart" then
+        for i, obj in pairs(self.map("units").objects) do
+            if obj.type == "Tentacle" then
+                entityTypes[obj.type].fromTmx(obj, self)
+            end
+        end
+    end
+end
+
+function GameOver:enter(prevState, status)
+    self.status = status
+end
+
 function GameOver:draw()
     local r, g, b, a = love.graphics.getColor()
     love.graphics.setColor(255, 0, 0)
@@ -110,10 +132,21 @@ function GameOver:draw()
 
     love.graphics.setColor(255, 255, 255)
     love.graphics.setFont(Fonts.large)
-    love.graphics.printf("Game Over.", textX, textY, textWidth, "left")
-    love.graphics.setFont(Fonts.normal)
-    love.graphics.printf("Press Enter to continue", textX, textY + 28,
-                         textWidth, "left")
+    if self.status == "won" then
+        love.graphics.printf("You won!", textX, textY, textWidth, "left")
+        love.graphics.setFont(Fonts.normal)
+        love.graphics.printf("Press Enter to restart", textX, textY + 28,
+                             textWidth, "left")
+    else
+        if self.status == "died" then
+            love.graphics.printf("You died.", textX, textY, textWidth, "left")
+        else
+            love.graphics.printf("Game Over.", textX, textY, textWidth, "left")
+        end
+        love.graphics.setFont(Fonts.normal)
+        love.graphics.printf("Press Enter to continue", textX, textY + 28,
+                             textWidth, "left")
+    end
     love.graphics.setColor(r, g, b, a)
 end
 
@@ -122,8 +155,13 @@ function GameOver:keyreleased(key, code)
         Game.player.destroyed = false
         Game.player.health = 3
         Game.player.body:setPosition(Game.playerStart.x, Game.playerStart.y)
-        print("restarting")
-        Gamestate.switch(Game)
+        if self.status == "won" then
+            print("Restarting")
+            Gamestate.switch(Game, "restart")
+        else
+            print("Continuing")
+            Gamestate.switch(Game)
+        end
     end
 end
 
