@@ -121,8 +121,13 @@ function Game:draw()
 
     love.graphics.setFont(Fonts.small)
     love.graphics.print(
-        string.format("Mem: %dKB", math.floor(collectgarbage("count"))),
+        string.format("FPS: %d", love.timer.getFPS()),
         1, 12
+    )
+
+    love.graphics.print(
+        string.format("Mem: %dKB", math.floor(collectgarbage("count"))),
+        1, 24
     )
 end
 
