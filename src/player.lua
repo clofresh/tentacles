@@ -29,10 +29,6 @@ function Player.draw(player)
     player.weapon:draw(player)
 end
 
-function rotate(x, y, r)
-    return x * math.cos(r) - y * math.sin(r), x * math.sin(r) + y * math.cos(r)
-end
-
 function Player.fromTmx(obj, game)
     local weapon = Stick()
     weapon.id = game:getId()
