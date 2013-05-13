@@ -11,7 +11,7 @@ namespace :src do
         sh <<-EOS
             OUTPUT=#{builddir}/#{lovefile}
             rm -f $OUTPUT
-            zip -r $OUTPUT lib/* src/* *.lua sprites/* tmx/* --exclude \\*/.\\* creds.rb
+            zip -r $OUTPUT lib/* src/* *.lua sprites/* tmx/* fonts/* --exclude \\*/.\\* creds.rb
         EOS
     end
 
