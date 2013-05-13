@@ -9,6 +9,7 @@ Stick    = require("src/weapon/stick")
 Critter  = require("src/critter")
 Collider = require("src/collider")
 Tentacle = require("src/tentacle")
+Obstacle = require("src/obstacle")
 ATL.path = "tmx/"
 
 Fonts = {}
@@ -23,6 +24,7 @@ local entityTypes = {
     Critter  = Critter,
     Tentacle = Tentacle,
     Stick    = Stick,
+    Obstacle = Obstacle,
 }
 
 function Game:init()
@@ -89,7 +91,7 @@ function Game:update(dt)
             table.remove(self.entities, i)
         else
             local Entity = entityTypes[entity:type()]
-            if Entity then
+            if Entity and Entity.update then
                 Entity.update(entity, dt, self)
             end
             if entity:type() == "Tentacle" then
@@ -113,7 +115,7 @@ function Game:draw()
         self.map:draw()
         for i, entity in pairs(self.entities) do
             local Entity = entityTypes[entity:type()]
-            if Entity then
+            if Entity and Entity.draw then
                 Entity.draw(entity)
             end
         end
