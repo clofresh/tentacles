@@ -45,7 +45,7 @@ end
 function Collider:destroy()
     for i=#self.entities, 1, -1 do
         local entity = self.entities[i]
-        if entity then
+        if entity and entity.destroy then
             entity:destroy()
         end
         table.remove(self.entities, i)
