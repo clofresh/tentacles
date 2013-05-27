@@ -53,6 +53,7 @@ end
 
 function Stick.swing(stick, player, dt, game)
     if not stick.shouldSwing or stick.swingTime > stick.maxSwingTime then
+        stick.shouldSwing = false
         stick.state = stick.cooldown
         stick.cooldownTime = 0
         stick.swingTime = nil
@@ -82,7 +83,6 @@ function Stick.update(stick, player, dt, game)
         stick.state = Stick.idle
     end
     stick.state(stick, player, dt, game)
-    stick.shouldSwing = false
 end
 
 function Stick.draw(stick)
