@@ -42,7 +42,7 @@ function Stick.idle(stick, player, dt, game)
         stick.body = game.collider:newBody(stickX, stickY, "dynamic")
         stick.shape = love.physics.newRectangleShape(0, 0,
             player.hitRadius, 5, angle)
-        stick.fixture = love.physics.newFixture(stick.body, stick.shape, 2)
+        stick.fixture = love.physics.newFixture(stick.body, stick.shape, 1)
         stick.dJoint = love.physics.newDistanceJoint(player.body, stick.body,
             playerX, playerY, stickX, stickY, false)
         stick.rJoint = love.physics.newRevoluteJoint(player.body, stick.body,

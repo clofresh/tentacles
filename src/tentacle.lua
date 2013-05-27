@@ -140,7 +140,7 @@ function Tentacle.fromTmx(obj, game)
     local x, y = obj.x, obj.y
     local numSegments = obj.properties.numSegments
     local length = obj.properties.length
-    local density = obj.properties.density or 100
+    local density = obj.properties.density or 1
     local segmentWidth = obj.properties.segmentWidth
     local segmentLen = length / numSegments
 

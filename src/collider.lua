@@ -74,24 +74,38 @@ function Collider:findInArea(x1, y1, x2, y2, shouldInclude)
     return results
 end
 
+local function applyForce(a, b, contact, order)
+    local cx1, cy1, cx2, cy2 = contact:getPositions()
+    local hit = vector(contact:getNormal()) * (vector(cx2, cy2):dist(vector(cx1, cy1)) * order)
+    if order == -1 then
+        a:getBody():applyForce(hit.x, hit.y)
+    else
+        b:getBody():applyForce(hit.x, hit.y)
+    end
+end
+
 function Collider:beginContact(a, b, contact)
     local entityA = self:entityFromFixture(a)
     local entityB = self:entityFromFixture(b)
     local aType = entityA:type()
     local bType = entityB:type()
+
     if aType == "Attack" and bType == "Critter" then
-        local hit = vector(contact:getNormal())
-        local toHit = b:getBody()
-        local contactPosX, contactPosY = contact:getPositions()
-        toHit:applyLinearImpulse(hit.x, hit.y, contactPosX, contactPosY)
+        applyForce(a, b, contact, 1)
+    elseif aType == "Critter" and bType == "Attack" then
+        applyForce(a, b, contact, -1)
     elseif aType == "Attack" and bType == "Tentacle" then
+        applyForce(a, b, contact, 1)
         Tentacle.applyDamage(entityB, entityA)
     elseif aType == "Tentacle" and bType == "Attack" then
+        applyForce(a, b, contact, -1)
         Tentacle.applyDamage(entityA, entityB)
-    elseif aType == "Player" and bType == "Tentacle" then
-        Player.applyDamage(entityA, entityB)
     elseif aType == "Tentacle" and bType == "Player" then
+        applyForce(a, b, contact, 1)
         Player.applyDamage(entityB, entityA)
+    elseif aType == "Player" and bType == "Tentacle" then
+        applyForce(a, b, contact, -1)
+        Player.applyDamage(entityA, entityB)
     end
 end
 
