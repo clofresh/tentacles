@@ -83,6 +83,7 @@ function Game:updateCamera()
 end
 
 function Game:update(dt)
+    -- if arg[#arg] == "-debug" then require("mobdebug").start() end
     local numTentacles = 0
     for i=#self.entities, 1, -1 do
         local entity = self.entities[i]
