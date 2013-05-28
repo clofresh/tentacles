@@ -105,6 +105,14 @@ function Tentacle.shrink(tentacle, dt, game)
     end
 end
 
+function Tentacle.dying(tentacle, dt, game)
+    tentacle.destroyingTime = tentacle.destroyingTime + dt
+    if tentacle.destroyingTime > tentacle.maxDestroyingTime then
+        tentacle.destroyed = true
+        tentacle.anchor:destroy()
+    end
+end
+
 function Tentacle.applyDamage(tentacle, attack)
     if #tentacle.segments > 0 then
         local segment = tentacle.segments[#tentacle.segments]
@@ -129,9 +137,17 @@ function Tentacle.update(tentacle, dt, game)
             table.remove(tentacle.segments, i)
         end
     end
-    tentacle.destroyed = #tentacle.segments == 0
-    if tentacle.destroyed then
-        tentacle.anchor:destroy()
+
+    if #tentacle.segments == 0 and tentacle.state ~= Tentacle.dying then
+        tentacle.state = Tentacle.dying
+        tentacle.destroyingTime = 0
+        tentacle.maxDestroyingTime = 1.25
+        local b = tentacle.blood
+        b:setPosition(tentacle.anchor:getPosition())
+        b:setLifetime(tentacle.maxDestroyingTime)
+        b:setSpeed(20, 200)
+        b:setEmissionRate(200)
+        b:start()
     else
         tentacle.state(tentacle, dt, game)
     end
