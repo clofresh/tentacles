@@ -3,6 +3,17 @@ local Tentacle = {}
 Tentacle = Class{function(self, state)
     self.state = state or Tentacle.idle
     self.damage = 1
+    self.blood = love.graphics.newParticleSystem(Images.blood, 100)
+    self.blood:start()
+    self.blood:setEmissionRate(100)
+    self.blood:setSpeed(20, 100)
+    self.blood:setGravity(100, 200)
+    self.blood:setLifetime(0.125)
+    self.blood:setParticleLife(0.25)
+    self.blood:setDirection(180)
+    self.blood:setSpread(20)
+    self.blood:setSizes(0.5, 1, 1.5, 2)
+    self.blood:stop()
 end}
 Tentacle.COLLISION_GROUP = -100
 
@@ -124,6 +135,7 @@ function Tentacle.update(tentacle, dt, game)
     else
         tentacle.state(tentacle, dt, game)
     end
+    tentacle.blood:update(dt)
 end
 
 function Tentacle.draw(tentacle)
@@ -131,6 +143,7 @@ function Tentacle.draw(tentacle)
         love.graphics.polygon("fill",
             seg.body:getWorldPoints(seg.shape:getPoints()))
     end
+    love.graphics.draw(tentacle.blood)
 end
 
 function Tentacle.fromTmx(obj, game)

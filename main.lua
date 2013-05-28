@@ -13,6 +13,7 @@ Obstacle = require("src/obstacle")
 ATL.path = "tmx/"
 
 Fonts = {}
+Images = {}
 
 local Game = {
     id = 0,
@@ -32,6 +33,9 @@ function Game:init()
     Fonts.small = love.graphics.newFont("fonts/leo_arrow.ttf", 12);
     Fonts.normal = love.graphics.newFont("fonts/leo_arrow.ttf", 24);
     Fonts.large = love.graphics.newFont("fonts/leo_arrow.ttf", 36);
+
+    -- Images
+    Images.blood = love.graphics.newImage("img/blood.gif")
 
     -- Set up the map
     self.map = self:loadMap("map0.tmx")
