@@ -4,7 +4,6 @@ Stick = Class{function(self)
     self.maxSwingTime = 0.25
     self.maxCooldownTime = 0.125
     self.damage = 1
-    self.torque = 100000
     self.state = self.idle
 end}
 
@@ -43,8 +42,6 @@ function Stick.idle(stick, player, dt, game)
         stick.shape = love.physics.newRectangleShape(0, 0,
             player.hitRadius, 5, angle)
         stick.fixture = love.physics.newFixture(stick.body, stick.shape, 1)
-        stick.dJoint = love.physics.newDistanceJoint(player.body, stick.body,
-            playerX, playerY, stickX, stickY, false)
         stick.rJoint = love.physics.newRevoluteJoint(player.body, stick.body,
             playerX, playerY, false)
         game.collider:register(stick)
@@ -61,7 +58,7 @@ function Stick.swing(stick, player, dt, game)
         stick:destroy()
     else
         stick.swingTime = stick.swingTime + dt
-        stick.body:applyTorque(stick.torque)
+        stick.body:setAngularVelocity((2*math.pi * 3))
     end
 end
 
