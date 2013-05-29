@@ -176,19 +176,27 @@ function GameOver:draw()
     love.graphics.setColor(r, g, b, a)
 end
 
+function GameOver:reset()
+    Game.player.destroyed = false
+    Game.player.health = 3
+    Game.player.body:setPosition(Game.playerStart.x, Game.playerStart.y)
+    if self.status == "won" then
+        print("Restarting")
+        Gamestate.switch(Game, "restart")
+    else
+        print("Continuing")
+        Gamestate.switch(Game)
+    end
+end
+
 function GameOver:keyreleased(key, code)
     if key == 'return' then
-        Game.player.destroyed = false
-        Game.player.health = 3
-        Game.player.body:setPosition(Game.playerStart.x, Game.playerStart.y)
-        if self.status == "won" then
-            print("Restarting")
-            Gamestate.switch(Game, "restart")
-        else
-            print("Continuing")
-            Gamestate.switch(Game)
-        end
+        self:reset()
     end
+end
+
+function GameOver:joystickreleased(key, code)
+    self:reset()
 end
 
 function love.load()
