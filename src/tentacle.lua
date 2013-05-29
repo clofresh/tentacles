@@ -13,6 +13,7 @@ Tentacle = Class{function(self, state)
     self.blood:setDirection(180)
     self.blood:setSpread(20)
     self.blood:setSizes(0.5, 1, 1.5, 2)
+    self.blood:setColors(104, 29, 229, 255, 64, 7, 55, 255)
     self.blood:stop()
 end}
 Tentacle.COLLISION_GROUP = -100

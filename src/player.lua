@@ -6,6 +6,18 @@ local Player = Class{function(self, weapon)
     self.inputs = {joystick, keyboard, mouse}
     self.weapon = weapon
     self.health = 10
+    self.blood = love.graphics.newParticleSystem(Images.blood, 100)
+    self.blood:start()
+    self.blood:setEmissionRate(100)
+    self.blood:setSpeed(20, 100)
+    self.blood:setGravity(100, 200)
+    self.blood:setLifetime(0.125)
+    self.blood:setParticleLife(0.25)
+    self.blood:setDirection(180)
+    self.blood:setSpread(20)
+    self.blood:setSizes(0.5, 1, 1.5, 2)
+    self.blood:setColors(255, 0, 0, 255, 55, 6, 5, 255)
+    self.blood:stop()
 end}
 
 function Player:type() return "Player" end
@@ -32,12 +44,14 @@ function Player.update(player, dt, game)
         player.body:setLinearVelocity(0, 0)
     end
     player.weapon:update(player, dt, game)
+    player.blood:update(dt)
 end
 
 function Player.draw(player)
     love.graphics.polygon("fill", player.body:getWorldPoints(
                                         player.shape:getPoints()))
     player.weapon:draw(player)
+    love.graphics.draw(player.blood)
 end
 
 function Player.applyDamage(player, attack)
