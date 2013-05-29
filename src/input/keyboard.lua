@@ -1,8 +1,10 @@
 local keyboard = {}
 
 keyboard.update = function(player, dt)
-    if love.keyboard.isDown(" ") then
-        player.weapon:primaryAttack()
+    if love.keyboard.isDown("j") then
+        player.weapon:primaryAttack(-3)
+    elseif love.keyboard.isDown("k") then
+        player.weapon:primaryAttack(3)
     else        
         local dx = 0
         local dy = 0

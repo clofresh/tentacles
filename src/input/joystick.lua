@@ -6,7 +6,9 @@ joystick.update = function(player, dt, game)
     local joyNum = 1
 
     if dong.isDown(joyNum, "A") then
-        player.weapon:primaryAttack()
+        player.weapon:primaryAttack(-3)
+    elseif dong.isDown(joyNum, "X") then
+        player.weapon:primaryAttack(3)
     else
         lsX, lsY = dong.ls(joyNum)
 

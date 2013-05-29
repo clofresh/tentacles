@@ -30,12 +30,12 @@ function Stick:destroy()
 end
 
 function Stick.idle(stick, player, dt, game)
-    if stick.shouldSwing then
+    if stick.swingSpeed ~= nil then
         stick.state = stick.swing
         stick.swingTime = 0
         local playerX, playerY = player.body:getPosition()
         local offset = player.w * 2
-        local angle = player.body:getAngle() - math.pi / 4
+        local angle = player.body:getAngle() - (math.pi / 4 * stick.swingSpeed / math.abs(stick.swingSpeed))
         stickX = playerX + offset * math.cos(angle)
         stickY = playerY + offset * math.sin(angle)
         stick.body = game.collider:newBody(stickX, stickY, "dynamic")
@@ -49,8 +49,8 @@ function Stick.idle(stick, player, dt, game)
 end
 
 function Stick.swing(stick, player, dt, game)
-    if not stick.shouldSwing or stick.swingTime > stick.maxSwingTime then
-        stick.shouldSwing = false
+    if stick.swingSpeed == nil or stick.swingTime > stick.maxSwingTime then
+        stick.swingSpeed = nil
         stick.state = stick.cooldown
         stick.cooldownTime = 0
         stick.swingTime = nil
@@ -58,7 +58,7 @@ function Stick.swing(stick, player, dt, game)
         stick:destroy()
     else
         stick.swingTime = stick.swingTime + dt
-        stick.body:setAngularVelocity((2*math.pi * 3))
+        stick.body:setAngularVelocity((2*math.pi * stick.swingSpeed))
     end
 end
 
@@ -71,8 +71,8 @@ function Stick.cooldown(stick, player, dt, game)
     end
 end
 
-function Stick:primaryAttack()
-    self.shouldSwing = true
+function Stick:primaryAttack(speed)
+    self.swingSpeed = speed
 end
 
 function Stick.update(stick, player, dt, game)
