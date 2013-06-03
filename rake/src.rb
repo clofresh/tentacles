@@ -8,10 +8,17 @@ namespace :src do
 
     desc 'Compile a .love file'
     task :dist => [:submodules, builddir] do
+	to_include = ["lib/*",
+		      "src/*",
+                      "*.lua",
+                      "sprites/*",
+                      "tmx/*",
+                      "fonts/*",
+                      "img/*"].join(" ")
         sh <<-EOS
             OUTPUT=#{builddir}/#{lovefile}
             rm -f $OUTPUT
-            zip -r $OUTPUT lib/* src/* *.lua sprites/* tmx/* fonts/* --exclude \\*/.\\* creds.rb
+            zip -r $OUTPUT #{to_include} --exclude \\*/.\\* creds.rb
         EOS
     end
 
