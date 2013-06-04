@@ -156,9 +156,18 @@ function Tentacle.update(tentacle, dt, game)
 end
 
 function Tentacle.draw(tentacle)
+    local img
     for i, seg in pairs(tentacle.segments) do
-        love.graphics.polygon("fill",
-            seg.body:getWorldPoints(seg.shape:getPoints()))
+        -- love.graphics.polygon("fill",
+        --     seg.body:getWorldPoints(seg.shape:getPoints()))
+        local x, y = seg.body:getWorldCenter()
+        local r = seg.body:getAngle()
+        if i == #tentacle.segments then
+            img = Images.seg3
+        else
+            img = Images.seg1
+        end
+        love.graphics.draw(img, x, y, r, 0.5, 0.5, 100, 30)
     end
     love.graphics.draw(tentacle.blood)
 end
