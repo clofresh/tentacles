@@ -163,11 +163,10 @@ function Tentacle.draw(tentacle)
         local x, y = seg.body:getWorldCenter()
         local r = seg.body:getAngle()
         if i == #tentacle.segments then
-            img = Images.seg3
+            love.graphics.draw(Images.seg3, x, y, r, 0.35, 0.5, 130, 30)
         else
-            img = Images.seg1
+            love.graphics.draw(Images.seg1, x, y, r, 0.5, 0.35, 100, 30)
         end
-        love.graphics.draw(img, x, y, r, 0.5, 0.5, 100, 30)
     end
     love.graphics.draw(tentacle.blood)
 end
