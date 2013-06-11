@@ -66,6 +66,20 @@ function Game:loadMap(map)
     end)
     local entities = self.entities
     function units:draw()
+        table.sort(entities, function(entity1, entity2)
+            local val1, val2
+            if entity1.body then
+                val1 = entity1.body:getY()
+            else
+                val1 = 0
+            end
+            if entity2.body then
+                val2 = entity2.body:getY()
+            else
+                val2 = 0
+            end
+            return val1 < val2
+        end)
         for i, entity in pairs(entities) do
             local Entity = entityTypes[entity:type()]
             if Entity and Entity.draw then
