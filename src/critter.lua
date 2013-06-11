@@ -19,8 +19,10 @@ function Critter.update(critter, dt, game)
 end
 
 function Critter.draw(critter)
-    love.graphics.circle("fill", critter.body:getX(),
-        critter.body:getY(), critter.shape:getRadius())
+    local x, y = critter.body:getWorldCenter()
+    love.graphics.draw(Images.blob, x, y, r, 0.25, 0.25, 160, 90)
+    -- love.graphics.circle("fill", critter.body:getX(),
+    --     critter.body:getY(), critter.shape:getRadius())
 end
 
 function Critter.fromTmx(obj, game)

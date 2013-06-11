@@ -39,6 +39,7 @@ function Game:init()
     Images.seg1  = love.graphics.newImage("img/tentacle4_seg1.png")
     Images.seg2  = love.graphics.newImage("img/tentacle4_seg2.png")
     Images.seg3  = love.graphics.newImage("img/tentacle4_seg3.png")
+    Images.blob  = love.graphics.newImage("img/blob.png")
 
     -- Set up the map
     self.map = self:loadMap("map0.tmx")
