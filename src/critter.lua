@@ -20,7 +20,8 @@ end
 
 function Critter.draw(critter)
     local x, y = critter.body:getWorldCenter()
-    love.graphics.draw(Images.blob, x, y, r, 0.25, 0.25, 160, 90)
+    local scaleFactor = critter.shape:getRadius() / 64
+    love.graphics.draw(Images.blob, x, y, r, scaleFactor, scaleFactor, 160, 90)
     -- love.graphics.circle("fill", critter.body:getX(),
     --     critter.body:getY(), critter.shape:getRadius())
 end
