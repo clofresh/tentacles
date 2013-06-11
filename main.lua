@@ -59,8 +59,18 @@ function Game:loadMap(map)
     self.collider = Collider()
 
     self.entities = {}
-    for i, obj in pairs(map("units").objects) do
+    local units = map("units")
+    units:toCustomLayer(function(obj)
         entityTypes[obj.type].fromTmx(obj, self)
+    end)
+    local entities = self.entities
+    function units:draw()
+        for i, entity in pairs(entities) do
+            local Entity = entityTypes[entity:type()]
+            if Entity and Entity.draw then
+                Entity.draw(entity)
+            end
+        end
     end
     assert(self.player)
     return map
@@ -121,12 +131,6 @@ end
 function Game:draw()
     self.cam:draw(function()
         self.map:draw()
-        for i, entity in pairs(self.entities) do
-            local Entity = entityTypes[entity:type()]
-            if Entity and Entity.draw then
-                Entity.draw(entity)
-            end
-        end
     end)
 
     love.graphics.setFont(Fonts.small)
