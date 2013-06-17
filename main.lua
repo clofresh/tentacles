@@ -10,10 +10,14 @@ Critter  = require("src/critter")
 Collider = require("src/collider")
 Tentacle = require("src/tentacle")
 Obstacle = require("src/obstacle")
+Lighting = require("src/lighting")
 ATL.path = "tmx/"
 
 Fonts = {}
 Images = {}
+
+WIDTH  = love.graphics.getWidth()
+HEIGHT = love.graphics.getHeight()
 
 local Game = {
     id = 0,
@@ -48,6 +52,8 @@ function Game:init()
     -- Set up the camera
     self.cam = Camera(love.graphics.getWidth() / 2, self.player.body:getY())
     self:updateCamera()
+
+    self.lighting = Lighting()
 end
 
 function Game:loadMap(map)
@@ -65,9 +71,11 @@ function Game:loadMap(map)
     units:toCustomLayer(function(obj)
         entityTypes[obj.type].fromTmx(obj, self)
     end)
-    local entities = self.entities
+    local slf = self
     function units:draw()
-        table.sort(entities, function(entity1, entity2)
+        local x, y = slf.cam:cameraCoords(slf.player.body:getWorldCenter())
+        slf.lighting:draw({x, HEIGHT - y})
+        table.sort(slf.entities, function(entity1, entity2)
             local val1, val2
             if entity1.body then
                 val1 = entity1.body:getY()
@@ -81,7 +89,7 @@ function Game:loadMap(map)
             end
             return val1 < val2
         end)
-        for i, entity in pairs(entities) do
+        for i, entity in pairs(slf.entities) do
             local Entity = entityTypes[entity:type()]
             if Entity and Entity.draw then
                 Entity.draw(entity)
