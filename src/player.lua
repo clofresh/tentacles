@@ -50,6 +50,9 @@ end
 function Player.draw(player)
     love.graphics.polygon("fill", player.body:getWorldPoints(
                                         player.shape:getPoints()))
+    local x, y = player.body:getWorldCenter()
+    local scaleFactor = 0.5
+    love.graphics.draw(Images.hero, x, y, r, scaleFactor, scaleFactor, 69, 104)
     player.weapon:draw(player)
     love.graphics.draw(player.blood)
 end
