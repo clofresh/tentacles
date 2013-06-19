@@ -1,16 +1,11 @@
 local effect = [[
-    extern number ambient;
-    extern number radius;
-    extern vec2 pos;
+    extern number ts;   //Tile size
+    extern number pwr;
+    extern vec2 pos;    //Player position
+    extern vec4 ambient;
 
-    vec4 effect(vec4 color, Image texture, vec2 t_coords, vec2 s_coords) {
-        vec4 pixel = Texel(texture, t_coords);
-        float dist = length(s_coords - pos);
-        if (pixel.a == 0.0) {
-            return pixel;
-        } else {
-            return vec4(pixel.rgb, pixel.a + ambient - (dist / radius));
-        }
+    vec4 effect(vec4 colour, Image img, vec2 percent, vec2 pixel) {
+        return (Texel(img, percent) * (ts / length(pos - pixel) * pwr)) + ambient;
     }
 ]]
 
@@ -22,14 +17,16 @@ local Lighting = Class{function(self, pos)
     end)
     self.pos = pos
     self.effect = love.graphics.newPixelEffect(effect)
-    self.effect:send("ambient", 0.1)
-    self.effect:send("radius", 512.0)
+    self.effect:send("ts", 5)
+    self.effect:send("pwr", 5)
+    self.effect:send("ambient", {0.1, 0.1, 0.2, 0.0})
 end}
 
 function Lighting:update(dt)
 end
 
 function Lighting:draw(pos)
+    local pos = {pos[1] + 40, pos[2]}
     self.effect:send("pos", pos)
     love.graphics.setPixelEffect(self.effect)
 end
