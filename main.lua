@@ -142,6 +142,7 @@ function Game:update(dt)
         end
     end
     self.collider:update(dt)
+    self.lighting:update(dt)
     self:updateCamera()
 
     -- Check if we should change game state
