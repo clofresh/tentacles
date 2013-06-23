@@ -11,6 +11,7 @@ Collider = require("src/collider")
 Tentacle = require("src/tentacle")
 Obstacle = require("src/obstacle")
 Lighting = require("src/lighting")
+Recorder = require("src/Recorder")
 ATL.path = "tmx/"
 
 Fonts = {}
@@ -54,6 +55,7 @@ function Game:init()
     self:updateCamera()
 
     self.lighting = Lighting()
+    self.recorder = Recorder()
 end
 
 function Game:loadMap(map)
@@ -143,6 +145,7 @@ function Game:update(dt)
     end
     self.collider:update(dt)
     self.lighting:update(dt)
+    self.recorder:update(dt)
     self:updateCamera()
 
     -- Check if we should change game state
