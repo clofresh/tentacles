@@ -45,6 +45,11 @@ function Player.update(player, dt, game)
     end
     player.weapon:update(player, dt, game)
     player.blood:update(dt)
+
+    local x, y = player.body:getWorldCenter()
+    player.torch.x = x
+    player.torch.y = y
+    game.lighting:addLight(player.torch)
 end
 
 function Player.draw(player)
@@ -86,6 +91,7 @@ function Player.fromTmx(obj, game)
     )
     player.fixture = love.physics.newFixture(player.body, player.shape, 1)
     player.body:setAngularDamping(5)
+    player.torch = game.lighting:newLight(obj.x, obj.y, 5, 5)
     game:register(player)
     game.playerStart = vector(obj.x, obj.y)
 end

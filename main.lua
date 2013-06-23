@@ -47,14 +47,14 @@ function Game:init()
     Images.blob  = love.graphics.newImage("img/blob.png")
     Images.hero  = love.graphics.newImage("img/hero2.png")
 
+    -- Set up the camera
+    self.cam = Camera()
+    self.lighting = Lighting(self.cam)
+
     -- Set up the map
     self.map = self:loadMap("map0.tmx")
-
-    -- Set up the camera
-    self.cam = Camera(love.graphics.getWidth() / 2, self.player.body:getY())
     self:updateCamera()
 
-    self.lighting = Lighting()
     self.recorder = Recorder()
 end
 
@@ -75,8 +75,7 @@ function Game:loadMap(map)
     end)
     local slf = self
     function units:draw()
-        local x, y = slf.cam:cameraCoords(slf.player.body:getWorldCenter())
-        slf.lighting:draw({x, HEIGHT - y})
+        slf.lighting:draw(slf.cam)
         table.sort(slf.entities, function(entity1, entity2)
             local val1, val2
             if entity1.body then
@@ -96,6 +95,17 @@ function Game:loadMap(map)
             if Entity and Entity.draw then
                 Entity.draw(entity)
             end
+        end
+    end
+
+    local lighting = map("lighting")
+    lighting:toCustomLayer(function(obj)
+        return slf.lighting:newLight(obj.x, obj.y, obj.properties.size,
+                                     obj.properties.power)
+    end)
+    function lighting:update(dt)
+        for i, light in pairs(self.objects) do
+            slf.lighting:addLight(light)
         end
     end
     assert(self.player)
@@ -143,6 +153,7 @@ function Game:update(dt)
             end
         end
     end
+    self.map("lighting"):update(dt)
     self.collider:update(dt)
     self.lighting:update(dt)
     self.recorder:update(dt)

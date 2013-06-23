@@ -1,25 +1,30 @@
 local effect = [[
-    extern number ts;   //Tile size
+    extern number ts;
     extern number pwr;
-    extern vec2 pos;    //Player position
+    extern vec4 lights[10];
+    extern number numLights;
     extern number brightness;
     extern number minLight;
 
     vec4 effect(vec4 color, Image tex, vec2 texCoords, vec2 pixelCoords) {
         vec4 val = Texel(tex, texCoords) * color;
         vec3 ambient = val.rgb * brightness;
-        vec3 lightSource = val.rgb * ts * pwr / length(pos - pixelCoords);
-        return vec4(max(ambient + lightSource, val.rgb * minLight),
-                    val.a);
+
+        // Add the effect of the positional lights
+        for (int i = 0; i < numLights; i ++) {
+            vec4 light = lights[i];
+            vec3 fullyLit = val.rgb * light[2] * light[3];
+            ambient += fullyLit / length(light.rg - pixelCoords);
+        }
+        return vec4(max(ambient, val.rgb * minLight), val.a);
     }
 ]]
 
 
-local Lighting = Class{function(self, pos)
-    self.pos = pos
+local Lighting = Class{function(self, cam, lights)
+    self.cam = cam
+    self.lights = lights or {}
     self.nightEffect = love.graphics.newPixelEffect(effect)
-    self.nightEffect:send("ts", 5)
-    self.nightEffect:send("pwr", 0)
     self.nightEffect:send("brightness", 1.0)
     self.nightEffect:send("minLight", 0.001)
     self.state = self.day
@@ -32,6 +37,20 @@ local Lighting = Class{function(self, pos)
     self.torchThreshold = 0.25
     self.torchPower = 5
 end}
+
+function Lighting:newLight(x, y, size, power)
+    return {
+        x = x,
+        y = y,
+        size = size or 0,
+        power = power or 0
+    }
+end
+
+function Lighting:addLight(light)
+    local x, y = self.cam:cameraCoords(light.x, light.y)
+    table.insert(self.lights, {x, HEIGHT - y, light.size, light.power})
+end
 
 function Lighting:update(dt)
     self.time = self.time + dt
@@ -58,9 +77,6 @@ end
 function Lighting:sunset(dt)
     local brightness = 1 - (self.time / self.sunsetLength)
     self.nightEffect:send("brightness", brightness)
-    if brightness <= self.torchThreshold then
-        self.nightEffect:send("pwr", self.torchPower)
-    end
     if self.time >= self.sunsetLength then
         self.time = 0.0
         self.state = self.night
@@ -71,9 +87,6 @@ end
 function Lighting:sunrise(dt)
     local brightness = self.time / self.sunsetLength
     self.nightEffect:send("brightness", brightness)
-    if brightness > self.torchThreshold then
-        self.nightEffect:send("pwr", 0)
-    end
     if self.time >= self.sunriseLength then
         self.time = 0.0
         self.state = self.day
@@ -82,14 +95,15 @@ function Lighting:sunrise(dt)
     end
 end
 
-function Lighting:draw(pos)
+function Lighting:draw(cam)
     if self.effect then
-        local pos = {pos[1] + 40, pos[2]}
-        self.nightEffect:send("pos", pos)
+        self.nightEffect:send("lights", unpack(self.lights))
+        self.nightEffect:send("numLights", #self.lights)
         love.graphics.setPixelEffect(self.nightEffect)
     else
         love.graphics.setPixelEffect()
     end
+    self.lights = {}
 end
 
 return Lighting

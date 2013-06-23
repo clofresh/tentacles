@@ -158,4 +158,27 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup name="lighting" width="32" height="32">
+  <object type="Light" x="192" y="352" width="32" height="32">
+   <properties>
+    <property name="power" value="1"/>
+    <property name="size" value="10"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object type="Light" x="128" y="768" width="32" height="32">
+   <properties>
+    <property name="power" value="1"/>
+    <property name="size" value="10"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object type="Light" x="736" y="608" width="32" height="32">
+   <properties>
+    <property name="power" value="1"/>
+    <property name="size" value="10"/>
+   </properties>
+   <ellipse/>
+  </object>
+ </objectgroup>
 </map>
