@@ -1,7 +1,7 @@
 local effect = [[
     extern number ts;
     extern number pwr;
-    extern vec4 lights[10];
+    extern vec4 lights[10]; // {x, y, size, power}
     extern number numLights;
     extern number brightness;
     extern number minLight;
@@ -37,22 +37,26 @@ local Lighting = Class{function(self, cam, lights)
     self.sunsetLength = 10.0
     self.nightLength = 10.0
     self.sunriseLength = 10.0
-    self.torchThreshold = 0.25
-    self.torchPower = 5
 end}
 
-function Lighting:newLight(x, y, size, power)
+function Lighting:newLight(x, y, size, power, active)
+    if active == nil then
+        active = true
+    end
     return {
         x = x,
         y = y,
         size = size or 0,
-        power = power or 0
+        power = power or 0,
+        active = active
     }
 end
 
 function Lighting:addLight(light)
-    local x, y = self.cam:cameraCoords(light.x, light.y)
-    table.insert(self.lights, {x, HEIGHT - y, light.size, light.power})
+    if light.active then
+        local x, y = self.cam:cameraCoords(light.x, light.y)
+        table.insert(self.lights, {x, HEIGHT - y, light.size, light.power})
+    end
 end
 
 function Lighting:update(dt)
@@ -98,7 +102,7 @@ function Lighting:sunrise(dt)
 end
 
 function Lighting:draw(cam)
-    if self.effect then
+    if self.effect and #self.lights > 0 then
         self.nightEffect:send("lights", unpack(self.lights))
         self.nightEffect:send("numLights", #self.lights)
         love.graphics.setPixelEffect(self.nightEffect)

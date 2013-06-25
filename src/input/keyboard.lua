@@ -1,22 +1,25 @@
-local keyboard = {}
+local lk = love.keyboard
+local keyboard = {
+    pressed = {}
+}
 
 keyboard.update = function(player, dt)
-    if love.keyboard.isDown("j") then
+    if lk.isDown("j") then
         player.weapon:primaryAttack(-3)
-    elseif love.keyboard.isDown("k") then
+    elseif lk.isDown("k") then
         player.weapon:primaryAttack(3)
     else        
         local dx = 0
         local dy = 0
-        if love.keyboard.isDown("w") then
+        if lk.isDown("w") then
             dy = -player.speed
-        elseif love.keyboard.isDown("s") then
+        elseif lk.isDown("s") then
             dy = player.speed
         end
 
-        if love.keyboard.isDown("a") then
+        if lk.isDown("a") then
             dx = -player.speed
-        elseif love.keyboard.isDown("d") then
+        elseif lk.isDown("d") then
             dx = player.speed
         end
         if dx ~= 0 or dy ~= 0 then
@@ -31,6 +34,15 @@ keyboard.update = function(player, dt)
             local angleDiff = targetAngle - player.dir
             player.body:setAngle(targetAngle)
         end
+    end
+
+    if lk.isDown("t") then
+        if not keyboard.pressed.torch then
+            player.torch.active = not player.torch.active
+            keyboard.pressed.torch = true
+        end
+    elseif keyboard.pressed.torch then
+        keyboard.pressed.torch = nil
     end
 end
 

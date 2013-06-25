@@ -1,5 +1,7 @@
 local dong = require("lib/dong/dong")
-local joystick = {}
+local joystick = {
+    pressed = {}
+}
 
 joystick.update = function(player, dt, game)
     -- xbox controller movement input
@@ -35,6 +37,15 @@ joystick.update = function(player, dt, game)
                 end
             end
         end
+    end
+
+    if dong.isDown(joyNum, "Y") then
+        if not joystick.pressed.torch then
+            player.torch.active = not player.torch.active
+            joystick.pressed.torch = true
+        end
+    elseif joystick.pressed.torch then
+        joystick.pressed.torch = nil
     end
 end
 

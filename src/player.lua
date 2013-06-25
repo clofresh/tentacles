@@ -91,7 +91,7 @@ function Player.fromTmx(obj, game)
     )
     player.fixture = love.physics.newFixture(player.body, player.shape, 1)
     player.body:setAngularDamping(5)
-    player.torch = game.lighting:newLight(obj.x, obj.y, 5, 5)
+    player.torch = game.lighting:newLight(obj.x, obj.y, 5, 5, false)
     game:register(player)
     game.playerStart = vector(obj.x, obj.y)
 end
