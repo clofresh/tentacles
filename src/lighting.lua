@@ -11,9 +11,12 @@ local effect = [[
         vec3 ambient = val.rgb * brightness;
 
         // Add the effect of the positional lights
+        vec4 light;
+        vec3 fullyLit;
+        number scaledLight = 1.1 - brightness;
         for (int i = 0; i < numLights; i ++) {
-            vec4 light = lights[i];
-            vec3 fullyLit = val.rgb * light[2] * light[3];
+            light = lights[i];
+            fullyLit = val.rgb * light[2] * light[3] * scaledLight;
             ambient += fullyLit / length(light.rg - pixelCoords);
         }
         return vec4(max(ambient, val.rgb * minLight), val.a);
@@ -90,7 +93,6 @@ function Lighting:sunrise(dt)
     if self.time >= self.sunriseLength then
         self.time = 0.0
         self.state = self.day
-        self.effect = nil
         print("Day")
     end
 end
