@@ -47,7 +47,7 @@ function Player.update(player, dt, game)
     player.blood:update(dt)
 
     local x, y = player.body:getWorldCenter()
-    player.torch.x = x
+    player.torch.x = x + 40
     player.torch.y = y
     game.lighting:addLight(player.torch)
 end
