@@ -44,6 +44,12 @@ keyboard.update = function(player, dt)
     elseif keyboard.pressed.torch then
         keyboard.pressed.torch = nil
     end
+
+    if lk.isDown("1") then
+        player.image = Images.hero1
+    elseif lk.isDown("2") then
+        player.image = Images.hero2
+    end
 end
 
 return keyboard

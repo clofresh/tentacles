@@ -45,7 +45,8 @@ function Game:init()
     Images.seg2  = love.graphics.newImage("img/tentacle4_seg2.png")
     Images.seg3  = love.graphics.newImage("img/tentacle4_seg3.png")
     Images.blob  = love.graphics.newImage("img/blob.png")
-    Images.hero  = love.graphics.newImage("img/hero2.png")
+    Images.hero1  = love.graphics.newImage("img/hero1.png")
+    Images.hero2  = love.graphics.newImage("img/hero2.png")
 
     -- Set up the camera
     self.cam = Camera()

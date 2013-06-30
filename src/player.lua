@@ -6,6 +6,7 @@ local Player = Class{function(self, weapon)
     self.inputs = {joystick, keyboard, mouse}
     self.weapon = weapon
     self.health = 10
+    self.image = Images.hero1
     self.blood = love.graphics.newParticleSystem(Images.blood, 100)
     self.blood:start()
     self.blood:setEmissionRate(100)
@@ -57,7 +58,7 @@ function Player.draw(player)
                                         player.shape:getPoints()))
     local x, y = player.body:getWorldCenter()
     local scaleFactor = 0.5
-    love.graphics.draw(Images.hero, x, y, r, scaleFactor, scaleFactor, 69, 104)
+    love.graphics.draw(player.image, x, y, r, scaleFactor, scaleFactor, 69, 104)
     player.weapon:draw(player)
     love.graphics.draw(player.blood)
 end
