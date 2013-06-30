@@ -41,28 +41,31 @@ function Game:init()
 
     -- Set up the map
     self.map = Map.load("map0.tmx")
-    self:updateCamera(0)
 
     self.recorder = Recorder()
 end
 
-function Game:updateCamera(dt)
+function Game:update(dt)
+    -- if arg[#arg] == "-debug" then require("mobdebug").start() end
+
+    -- Update the entities
+    self.map("entities"):update(dt)
+
+    -- Update the camera's position
     self.cam.x = love.graphics.getWidth() / 2
     self.cam.y = self.map("entities").player.body:getY()
 
+    -- Update the map's draw range
     local camWorldWidth = love.graphics.getWidth() / self.cam.scale
     local camWorldHeight = love.graphics.getHeight() / self.cam.scale
     local camWorldX = self.cam.x - (camWorldWidth / 2)
     local camWorldY = self.cam.y - (camWorldHeight / 2)
     self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth, camWorldHeight)
 
+    -- Update the lighting
     self.map("lighting"):update(dt, self.cam)
-end
 
-function Game:update(dt)
-    -- if arg[#arg] == "-debug" then require("mobdebug").start() end
-    self.map("entities"):update(dt)
-    self:updateCamera(dt)
+    -- Update the recorder, if it's enabled
     self.recorder:update(dt)
 
     -- Check if we should change game state
