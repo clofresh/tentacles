@@ -1,4 +1,3 @@
-local ATL = require("lib/atl").Loader
 local Camera = require("lib/hump/camera")
 local Gamestate = require("lib/hump/gamestate")
 vector = require("lib/hump/vector")
@@ -10,9 +9,8 @@ Critter  = require("src/critter")
 Collider = require("src/collider")
 Tentacle = require("src/tentacle")
 Obstacle = require("src/obstacle")
-Lighting = require("src/lighting")
 Recorder = require("src/Recorder")
-ATL.path = "tmx/"
+Map      = require("src/map")
 
 Fonts = {}
 Images = {}
@@ -20,18 +18,8 @@ Images = {}
 WIDTH  = love.graphics.getWidth()
 HEIGHT = love.graphics.getHeight()
 
-local Game = {
-    id = 0,
-}
+local Game = {}
 local GameOver = {}
-
-local entityTypes = {
-    Player   = Player,
-    Critter  = Critter,
-    Tentacle = Tentacle,
-    Stick    = Stick,
-    Obstacle = Obstacle,
-}
 
 function Game:init()
     -- Font from http://openfontlibrary.org/en/font/leo-arrow
@@ -50,118 +38,35 @@ function Game:init()
 
     -- Set up the camera
     self.cam = Camera()
-    self.lighting = Lighting(self.cam)
 
     -- Set up the map
-    self.map = self:loadMap("map0.tmx")
-    self:updateCamera()
+    self.map = Map.load("map0.tmx")
+    self:updateCamera(0)
 
     self.recorder = Recorder()
 end
 
-function Game:loadMap(map)
-    map = ATL.load(map)
-    map.drawObjects = false
-
-    if self.collider then
-        self.collider:destroy()
-        self.collider = nil
-    end
-    self.collider = Collider()
-
-    self.entities = {}
-    local units = map("units")
-    units:toCustomLayer(function(obj)
-        entityTypes[obj.type].fromTmx(obj, self)
-    end)
-    local slf = self
-    function units:draw()
-        slf.lighting:draw(slf.cam)
-        table.sort(slf.entities, function(entity1, entity2)
-            local val1, val2
-            if entity1.body then
-                val1 = entity1.body:getY()
-            else
-                val1 = 0
-            end
-            if entity2.body then
-                val2 = entity2.body:getY()
-            else
-                val2 = 0
-            end
-            return val1 < val2
-        end)
-        for i, entity in pairs(slf.entities) do
-            local Entity = entityTypes[entity:type()]
-            if Entity and Entity.draw then
-                Entity.draw(entity)
-            end
-        end
-    end
-
-    local lighting = map("lighting")
-    lighting:toCustomLayer(function(obj)
-        return slf.lighting:newLight(obj.x, obj.y, obj.properties.size,
-                                     obj.properties.power)
-    end)
-    function lighting:update(dt)
-        for i, light in pairs(self.objects) do
-            slf.lighting:addLight(light)
-        end
-    end
-    assert(self.player)
-    return map
-end
-
-function Game:getId()
-    self.id = self.id + 1
-    return self.id
-end
-
-function Game:register(entity)
-    entity.id = self:getId()
-    self.collider:register(entity)
-    table.insert(self.entities, entity)
-    print(string.format("Registered %s", tostring(entity)))
-end
-
-function Game:updateCamera()
+function Game:updateCamera(dt)
     self.cam.x = love.graphics.getWidth() / 2
-    self.cam.y = self.player.body:getY()
+    self.cam.y = self.map("entities").player.body:getY()
 
     local camWorldWidth = love.graphics.getWidth() / self.cam.scale
     local camWorldHeight = love.graphics.getHeight() / self.cam.scale
     local camWorldX = self.cam.x - (camWorldWidth / 2)
     local camWorldY = self.cam.y - (camWorldHeight / 2)
     self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth, camWorldHeight)
+
+    self.map("lighting"):update(dt, self.cam)
 end
 
 function Game:update(dt)
     -- if arg[#arg] == "-debug" then require("mobdebug").start() end
-    local numTentacles = 0
-    for i=#self.entities, 1, -1 do
-        local entity = self.entities[i]
-        if entity.destroyed then
-            print("Removing " .. tostring(entity))
-            table.remove(self.entities, i)
-        else
-            local Entity = entityTypes[entity:type()]
-            if Entity and Entity.update then
-                Entity.update(entity, dt, self)
-            end
-            if entity:type() == "Tentacle" then
-                numTentacles = numTentacles + 1
-            end
-        end
-    end
-    self.map("lighting"):update(dt)
-    self.collider:update(dt)
-    self.lighting:update(dt)
+    self.map("entities"):update(dt)
+    self:updateCamera(dt)
     self.recorder:update(dt)
-    self:updateCamera()
 
     -- Check if we should change game state
-    if self.player.destroyed then
+    if self.map("entities").player.destroyed then
         Gamestate.switch(GameOver, "died")
     elseif numTentacles == 0 then
         Gamestate.switch(GameOver, "won")
@@ -187,7 +92,7 @@ end
 
 function Game:enter(prevState, status)
     if status == "restart" then
-        self.map = self:loadMap("map0.tmx")
+        self.map = Map.load("map0.tmx")
     end
 end
 
@@ -224,9 +129,11 @@ function GameOver:draw()
 end
 
 function GameOver:reset()
-    Game.player.destroyed = false
-    Game.player.health = 3
-    Game.player.body:setPosition(Game.playerStart.x, Game.playerStart.y)
+    local player = Game.map("entities").player
+    local playerStart = Game.map("entities").playerStart
+    player.destroyed = false
+    player.health = 3
+    player.body:setPosition(playerStart.x, playerStart.y)
     if self.status == "won" then
         print("Restarting")
         Gamestate.switch(Game, "restart")

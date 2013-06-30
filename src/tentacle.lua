@@ -171,7 +171,7 @@ function Tentacle.draw(tentacle)
     love.graphics.draw(tentacle.blood)
 end
 
-function Tentacle.fromTmx(obj, game)
+function Tentacle.fromTmx(obj, layer)
     -- Initialize the variables we'll be operating on
     local lp = love.physics
     local t = Tentacle()
@@ -186,7 +186,7 @@ function Tentacle.fromTmx(obj, game)
     local segments = {}
     for i = 1, numSegments do
         local segment = {
-            body = game.collider:newBody(x, y, "dynamic"),
+            body = layer.collider:newBody(x, y, "dynamic"),
             shape = lp.newRectangleShape(i * segmentLen, 0, segmentLen,
                                          segmentWidth),
             health = 10,
@@ -198,7 +198,7 @@ function Tentacle.fromTmx(obj, game)
     end
 
     -- Connect the tentacle segments with joints
-    t.anchor = game.collider:newBody(x, y, "static")
+    t.anchor = layer.collider:newBody(x, y, "static")
     segments[1].pivot = lp.newRevoluteJoint(t.anchor,
         segments[1].body, x, y, false)
     for i = 2, numSegments do
@@ -211,7 +211,8 @@ function Tentacle.fromTmx(obj, game)
 
     -- Store everything in the proper place
     t.segments = segments
-    game:register(t)
+    layer.collider:register(t)
+    return t
 end
 
 

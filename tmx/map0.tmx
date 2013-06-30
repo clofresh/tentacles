@@ -81,7 +81,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="units" width="32" height="32">
+ <objectgroup name="entities" width="32" height="32">
   <object name="start0" type="Player" x="128" y="608" width="64" height="64"/>
   <object type="Critter" x="352" y="384" width="64" height="64"/>
   <object type="Critter" x="896" y="512" width="32" height="32"/>

@@ -1,4 +1,5 @@
 local Collider = Class{function(self)
+    self.id = 0
     self.entities = {}
     self.world = love.physics.newWorld()
     local me = self
@@ -6,6 +7,11 @@ local Collider = Class{function(self)
         me:beginContact(...)
     end)
 end}
+
+function Collider:getId()
+    self.id = self.id + 1
+    return self.id
+end
 
 function Collider:update(dt)
     self.world:update(dt)
@@ -16,7 +22,9 @@ function Collider:newBody(...)
 end
 
 function Collider:register(entity)
-    assert(entity.id)
+    if not entity.id then
+        entity.id = self:getId()
+    end
     local id = entity.id
     if entity.fixture then
         entity.fixture:setUserData(id)

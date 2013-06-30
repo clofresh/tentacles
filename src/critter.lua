@@ -26,13 +26,14 @@ function Critter.draw(critter)
     --     critter.body:getY(), critter.shape:getRadius())
 end
 
-function Critter.fromTmx(obj, game)
+function Critter.fromTmx(obj, layer)
     local critter = Critter(obj.properties.step)
-    critter.body = game.collider:newBody(obj.x, obj.y, "dynamic")
+    critter.body = layer.collider:newBody(obj.x, obj.y, "dynamic")
     critter.shape = love.physics.newCircleShape(obj.width / 2)
     critter.fixture = love.physics.newFixture(critter.body, critter.shape, 1)
     critter.fixture:setRestitution(0.7)
-    game:register(critter)
+    layer.collider:register(critter)
+    return critter
 end
 
 return Critter
