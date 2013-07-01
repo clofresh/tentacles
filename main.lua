@@ -3,9 +3,10 @@ Class  = require("lib/hump/class")
 vector = require("lib/hump/vector")
 
 -- Game states
-Gamestate = require("lib/hump/gamestate")
-Game      = require("src/gamestates/game")
-GameOver  = require("src/gamestates/game_over")
+Gamestate     = require("lib/hump/gamestate")
+Game          = require("src/gamestates/game")
+MapTransition = require("src/gamestates/map_transition")
+GameOver      = require("src/gamestates/game_over")
 
 WIDTH  = love.graphics.getWidth()
 HEIGHT = love.graphics.getHeight()

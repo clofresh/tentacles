@@ -64,7 +64,6 @@ function Entities.load(layer)
         print(string.format("Registered %s", tostring(entity)))
         return entity
     end)
-    assert(layer.player)
 
     return layer
 end

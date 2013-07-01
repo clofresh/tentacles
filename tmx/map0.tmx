@@ -181,4 +181,13 @@
    <ellipse/>
   </object>
  </objectgroup>
+ <objectgroup name="exits" width="32" height="32">
+  <object type="Exit" x="0" y="480" width="32" height="256">
+   <properties>
+    <property name="dest" value="map-w"/>
+    <property name="ox" value="-20"/>
+    <property name="oy" value="0"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>

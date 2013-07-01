@@ -60,6 +60,8 @@ function Game:update(dt)
     -- Update the recorder, if it's enabled
     self.recorder:update(dt)
 
+    self.map("exits"):update(dt)
+
     -- Check if we should change game state
     if self.map("entities").player.destroyed then
         Gamestate.switch(GameOver, "died")
@@ -83,12 +85,16 @@ function Game:draw()
         string.format("Mem: %dKB", math.floor(collectgarbage("count"))),
         1, 24
     )
+
+    local x, y = self.map("entities").player.body:getWorldCenter()
+    love.graphics.print(string.format("Pos: %f, %f", x, y), 1, 36)
 end
 
 function Game:enter(prevState, status)
     if status == "restart" then
         self.map = Map.load("map0.tmx")
     end
+    print("entering game " ..tostring(self.map))
 end
 
 return Game
