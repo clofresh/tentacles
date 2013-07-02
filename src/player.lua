@@ -38,7 +38,6 @@ function Player.update(player, dt, game)
     for i, input in pairs(player.inputs) do
         input.update(player, dt, game)
     end
-    print("velocity", player.velocity)
     if player.velocity then
         player.body:setLinearVelocity(player.velocity.x, player.velocity.y)
         player.velocity = nil
