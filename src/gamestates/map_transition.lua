@@ -64,17 +64,6 @@ function MapTransition:update(dt)
     local player = self.oldMap("entities").player
     local exit = self.exit
 
-    -- local left1   = cam.x - WIDTH / 2
-    -- local top1    = cam.y - HEIGHT / 2
-    -- local right1  = cam.x + WIDTH / 2
-    -- local bottom1 = cam.y + HEIGHT / 2
-    -- local left2   = exit.ox
-    -- local top2    = exit.oy
-    -- local right2  = exit.ox + self.newMap.width * self.newMap.tileWidth
-    -- local bottom2 = exit.oy + self.newMap.height * self.newMap.tileHeight
-
-    -- if left1 >= left2 and right1  <= right2 and
-    --    top1  >= top2  and bottom1 <= bottom2 then
     self.elapsedTime = self.elapsedTime + dt
 
     if self.elapsedTime >= self.transitionTime then
