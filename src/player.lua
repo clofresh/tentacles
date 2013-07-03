@@ -81,8 +81,6 @@ function Player.load(layer, zone)
     player.w = 24
     player.h = 32
     player.dir = 0
-    player.torch = Lighting.newLight(x, y, 5, 5, false)
-    layer.map("lighting"):register(player.torch)
     layer.playerStart = vector(x, y)
     Player.resetPhysics(player, layer, x, y)
     layer:registerPlayer(player)
@@ -102,6 +100,9 @@ function Player.resetPhysics(player, layer, x, y)
     player.fixture = love.physics.newFixture(player.body, player.shape, 1)
     player.body:setAngularDamping(5)
     layer.collider:register(player)
+
+    player.torch = Lighting.newLight(x, y, 5, 5, false)
+    layer.map("lighting"):register(player.torch)
 end
 
 return Player
