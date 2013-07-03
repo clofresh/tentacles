@@ -100,6 +100,8 @@ function MapTransition:update(dt)
         self.oldMap:setDrawRange(camWorldX, camWorldY, camWorldWidth, camWorldHeight)
         self.newMap:setDrawRange(camWorldX, camWorldY, camWorldWidth, camWorldHeight)
 
+        self.oldMap("lighting"):update(dt, cam)
+        self.newMap("lighting"):update(dt, cam, self.exit.ox, self.exit.oy)
     end
 end
 

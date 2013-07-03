@@ -45,11 +45,13 @@ function Lighting.newLight(x, y, size, power, active)
     }
 end
 
-local update = function(self, dt, cam)
+local update = function(self, dt, cam, ox, oy)
     local lights = {}
+    local ox = ox or 0
+    local oy = oy or 0
     for i, light in pairs(self.objects) do
         if light.active then
-            local x, y = cam:cameraCoords(light.x, light.y)
+            local x, y = cam:cameraCoords(light.x + ox, light.y + oy)
             table.insert(lights, {x, HEIGHT - y, light.size, light.power})
         end
     end
