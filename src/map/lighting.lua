@@ -50,9 +50,13 @@ local update = function(self, dt, cam)
     self.time = self.time + dt
     self:state(dt)
 
-    if self.effect and #lights > 0 then
-        self.effect:send("lights", unpack(lights))
-        self.effect:send("numLights", #lights)
+    if self.effect then
+        if #lights > 0 then
+            self.effect:send("lights", unpack(lights))
+            self.effect:send("numLights", #lights)
+        else
+            self.effect:send("numLights", 0)
+        end
     end
 end
 
