@@ -1,6 +1,6 @@
 local ATL = require("lib/atl").Loader
 local Entities = require("src/map/entities")
-local Exits = require("src/map/exits")
+local Zones = require("src/map/zones")
 Lighting = require("src/map/lighting")
 
 ATL.path = "tmx/"
@@ -9,7 +9,7 @@ local Map = {
     layerTypes = {
         lighting = Lighting,
         entities = Entities,
-        exits = Exits,
+        zones = Zones,
     }
 }
 

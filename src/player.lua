@@ -71,16 +71,27 @@ function Player.applyDamage(player, attack)
     end
 end
 
-function Player.fromTmx(obj, layer)
+function Player.load(layer, zone)
     local weapon = Stick()
     local player = Player(weapon)
+    local x = zone.x
+    local y = zone.y
     player.speed = 128
     player.hitRadius = 60
     player.w = 24
     player.h = 32
     player.dir = 0
-    layer.player = player
-    player.body = layer.collider:newBody(obj.x, obj.y, "dynamic")
+    player.torch = Lighting.newLight(x, y, 5, 5, false)
+    layer.map("lighting"):register(player.torch)
+    layer.playerStart = vector(x, y)
+    Player.resetPhysics(player, layer, x, y)
+    layer:registerPlayer(player)
+    print("Created player at", x, y)
+    return player
+end
+
+function Player.resetPhysics(player, layer, x, y)
+    player.body = layer.collider:newBody(x, y, "dynamic")
     player.shape = love.physics.newPolygonShape(
         -player.w / 2, -player.h / 2,
         player.w / 2, -player.h / 2,
@@ -90,12 +101,7 @@ function Player.fromTmx(obj, layer)
     )
     player.fixture = love.physics.newFixture(player.body, player.shape, 1)
     player.body:setAngularDamping(5)
-    player.torch = Lighting.newLight(obj.x, obj.y, 5, 5, false)
-    layer.map("lighting"):register(player.torch)
     layer.collider:register(player)
-    layer.playerStart = vector(obj.x, obj.y)
-
-    return player
 end
 
 return Player

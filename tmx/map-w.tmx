@@ -51,7 +51,7 @@
 </data>
  </layer>
  <objectgroup name="entities" width="40" height="40"/>
- <objectgroup name="exits" width="40" height="40">
+ <objectgroup name="zones" width="40" height="40">
   <object type="Exit" x="0" y="0" width="64" height="1280">
    <properties>
     <property name="dest" value="map0"/>

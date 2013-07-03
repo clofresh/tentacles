@@ -8,16 +8,11 @@ Obstacle = require("src/obstacle")
 Recorder = require("src/Recorder")
 Map      = require("src/map")
 
-Fonts = {}
 Images = {}
 
 local Game = {}
 
 function Game:init()
-    -- Font from http://openfontlibrary.org/en/font/leo-arrow
-    Fonts.small = love.graphics.newFont("fonts/leo_arrow.ttf", 12);
-    Fonts.normal = love.graphics.newFont("fonts/leo_arrow.ttf", 24);
-    Fonts.large = love.graphics.newFont("fonts/leo_arrow.ttf", 36);
 
     -- Images
     Images.blood = love.graphics.newImage("img/blood.gif")
@@ -32,8 +27,6 @@ function Game:init()
     self.cam = Camera()
 
     -- Set up the map
-    self.map = Map.load("map0.tmx")
-
     self.recorder = Recorder()
 end
 
@@ -45,18 +38,20 @@ function Game:update(dt)
     entities:update(dt)
 
     -- Update the camera's position
-    local x, y = entities.player.body:getWorldCenter()
-    self.cam.x = math.clamp(x, WIDTH / 2,
-        self.map.width * self.map.tileWidth - WIDTH / 2)
-    self.cam.y = math.clamp(y, HEIGHT / 2,
-        self.map.height * self.map.tileHeight - HEIGHT / 2)
+    if entities.player then
+        local x, y = entities.player.body:getWorldCenter()
+        self.cam.x = math.clamp(x, WIDTH / 2,
+            self.map.width * self.map.tileWidth - WIDTH / 2)
+        self.cam.y = math.clamp(y, HEIGHT / 2,
+            self.map.height * self.map.tileHeight - HEIGHT / 2)
 
-    -- Update the map's draw range
-    local camWorldWidth = WIDTH / self.cam.scale
-    local camWorldHeight = HEIGHT / self.cam.scale
-    local camWorldX = self.cam.x - (camWorldWidth / 2)
-    local camWorldY = self.cam.y - (camWorldHeight / 2)
-    self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth, camWorldHeight)
+        -- Update the map's draw range
+        local camWorldWidth = WIDTH / self.cam.scale
+        local camWorldHeight = HEIGHT / self.cam.scale
+        local camWorldX = self.cam.x - (camWorldWidth / 2)
+        local camWorldY = self.cam.y - (camWorldHeight / 2)
+        self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth, camWorldHeight)
+    end
 
     -- Update the lighting
     self.map("lighting"):update(dt, self.cam)
@@ -64,10 +59,10 @@ function Game:update(dt)
     -- Update the recorder, if it's enabled
     self.recorder:update(dt)
 
-    self.map("exits"):update(dt)
+    self.map("zones"):update(dt)
 
     -- Check if we should change game state
-    if entities.player.destroyed then
+    if (entities.player or {}).destroyed then
         Gamestate.switch(GameOver, "died")
     elseif numTentacles == 0 then
         Gamestate.switch(GameOver, "won")
@@ -90,13 +85,18 @@ function Game:draw()
         1, 24
     )
 
-    local x, y = self.map("entities").player.body:getWorldCenter()
-    love.graphics.print(string.format("Pos: %f, %f", x, y), 1, 36)
+    local player = self.map("entities").player
+    if player then
+        local x, y = player.body:getWorldCenter()
+        love.graphics.print(string.format("Pos: %f, %f", x, y), 1, 36)
+    end
 end
 
 function Game:enter(prevState, status)
     if status == "restart" then
         self.map = Map.load("map0.tmx")
+        local entities = self.map("entities")
+        Player.load(entities, self.map("zones"):get("playerStart"))
     end
     print("entering game " ..tostring(self.map))
 end

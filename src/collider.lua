@@ -48,6 +48,7 @@ function Collider:unregister(entity)
         error("Can't unregister entity")
     end
     self.entities[id] = nil
+    print("Unregistered entity:", id)
 end
 
 function Collider:destroy()

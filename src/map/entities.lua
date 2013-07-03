@@ -52,11 +52,16 @@ local update = function(self, dt)
     self.collider:update(dt)
 end
 
+local registerPlayer = function(self, player)
+    self.player = player
+    table.insert(self.objects, player)
+end
 
 function Entities.load(layer)
     layer.id = 0
     layer.update = update
     layer.draw = draw
+    layer.registerPlayer = registerPlayer
     layer.collider = Collider()
 
     layer:toCustomLayer(function(obj)

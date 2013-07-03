@@ -81,19 +81,20 @@ function MapTransition:update(dt)
        print("done transitioning")
        local pX = player.body:getX() - exit.ox
        local pY = player.body:getY() - exit.oy
+       self.oldMap("entities").collider:unregister(player)
        self.oldMap("entities").collider:destroy()
        Game.map = self.newMap
        local entities = Game.map("entities")
-       player = Player.fromTmx({x=pX, y=pY}, entities)
-       table.insert(entities.objects, player)
+       entities:registerPlayer(player)
+       Player.resetPhysics(player, entities, pX, pY)
        Gamestate.switch(Game)
     else
         local percent = dt / self.transitionTime
         cam.x = cam.x + percent * self.camDisplacement.x
         cam.y = cam.y + percent * self.camDisplacement.y
 
-        local camWorldWidth = love.graphics.getWidth() / cam.scale
-        local camWorldHeight = love.graphics.getHeight() / cam.scale
+        local camWorldWidth = WIDTH / cam.scale
+        local camWorldHeight = HEIGHT / cam.scale
         local camWorldX = cam.x - (camWorldWidth / 2)
         local camWorldY = cam.y - (camWorldHeight / 2)
         self.oldMap:setDrawRange(camWorldX, camWorldY, camWorldWidth, camWorldHeight)
