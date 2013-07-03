@@ -41,15 +41,19 @@ function Game:update(dt)
     -- if arg[#arg] == "-debug" then require("mobdebug").start() end
 
     -- Update the entities
-    self.map("entities"):update(dt)
+    local entities = self.map("entities")
+    entities:update(dt)
 
     -- Update the camera's position
-    self.cam.x = love.graphics.getWidth() / 2
-    self.cam.y = self.map("entities").player.body:getY()
+    local x, y = entities.player.body:getWorldCenter()
+    self.cam.x = math.clamp(x, WIDTH / 2,
+        self.map.width * self.map.tileWidth - WIDTH / 2)
+    self.cam.y = math.clamp(y, HEIGHT / 2,
+        self.map.height * self.map.tileHeight - HEIGHT / 2)
 
     -- Update the map's draw range
-    local camWorldWidth = love.graphics.getWidth() / self.cam.scale
-    local camWorldHeight = love.graphics.getHeight() / self.cam.scale
+    local camWorldWidth = WIDTH / self.cam.scale
+    local camWorldHeight = HEIGHT / self.cam.scale
     local camWorldX = self.cam.x - (camWorldWidth / 2)
     local camWorldY = self.cam.y - (camWorldHeight / 2)
     self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth, camWorldHeight)
@@ -63,7 +67,7 @@ function Game:update(dt)
     self.map("exits"):update(dt)
 
     -- Check if we should change game state
-    if self.map("entities").player.destroyed then
+    if entities.player.destroyed then
         Gamestate.switch(GameOver, "died")
     elseif numTentacles == 0 then
         Gamestate.switch(GameOver, "won")

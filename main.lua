@@ -1,6 +1,9 @@
 -- Global utilities
 Class  = require("lib/hump/class")
 vector = require("lib/hump/vector")
+math.clamp = function(val, min, max)
+    return math.min(math.max(val, min), max)
+end
 
 -- Game states
 Gamestate     = require("lib/hump/gamestate")
