@@ -23,7 +23,14 @@ local nightEffect = love.graphics.newPixelEffect [[
     }
 ]]
 
-local Lighting = {}
+local Lighting = {
+    effect = nightEffect,
+    time = 0.0,
+    dayLength = 10.0,
+    sunsetLength = 10.0,
+    nightLength = 10.0,
+    sunriseLength = 10.0,
+}
 
 function Lighting.newLight(x, y, size, power, active)
     if active == nil then
@@ -47,15 +54,15 @@ local update = function(self, dt, cam)
         end
     end
 
-    self.time = self.time + dt
-    self:state(dt)
+    Lighting.time = Lighting.time + dt
+    Lighting.state(self, dt)
 
-    if self.effect then
+    if Lighting.effect then
         if #lights > 0 then
-            self.effect:send("lights", unpack(lights))
-            self.effect:send("numLights", #lights)
+            Lighting.effect:send("lights", unpack(lights))
+            Lighting.effect:send("numLights", #lights)
         else
-            self.effect:send("numLights", 0)
+            Lighting.effect:send("numLights", 0)
         end
     end
 end
@@ -63,45 +70,50 @@ end
 local States = {}
 
 function States.day(self, dt)
-    if self.time >= self.dayLength then
-        self.time = 0.0
-        self.state = States.sunset
-        self.effect = nightEffect
+    if Lighting.time >= Lighting.dayLength then
+        Lighting.time = 0.0
+        Lighting.state = States.sunset
+        Lighting.effect = nightEffect
         print("Sunset")
     end
 end
 
 function States.night(self, dt)
-    if self.time >= self.nightLength then
-        self.time = 0.0
-        self.state = States.sunrise
+    if Lighting.time >= Lighting.nightLength then
+        Lighting.time = 0.0
+        Lighting.state = States.sunrise
         print("Sunrise")
     end
 end
 
 function States.sunset(self, dt)
-    local brightness = 1 - (self.time / self.sunsetLength)
+    local brightness = 1 - (Lighting.time / Lighting.sunsetLength)
     nightEffect:send("brightness", brightness)
-    if self.time >= self.sunsetLength then
-        self.time = 0.0
-        self.state = States.night
+    if Lighting.time >= Lighting.sunsetLength then
+        Lighting.time = 0.0
+        Lighting.state = States.night
         print("Night")
     end
 end
 
 function States.sunrise(self, dt)
-    local brightness = self.time / self.sunsetLength
+    local brightness = Lighting.time / Lighting.sunsetLength
     nightEffect:send("brightness", brightness)
-    if self.time >= self.sunriseLength then
-        self.time = 0.0
-        self.state = States.day
+    if Lighting.time >= Lighting.sunriseLength then
+        Lighting.time = 0.0
+        Lighting.state = States.day
         print("Day")
     end
 end
 
+-- Initialize it to be daytime
+Lighting.state = States.day
+nightEffect:send("brightness", 1.0)
+nightEffect:send("minLight", 0.001)
+
 local draw = function(self)
-    if self.effect then
-        love.graphics.setPixelEffect(self.effect)
+    if Lighting.effect then
+        love.graphics.setPixelEffect(Lighting.effect)
     else
         love.graphics.setPixelEffect()
     end
@@ -119,17 +131,6 @@ function Lighting.load(layer)
         return layer:register(Lighting.newLight(obj.x, obj.y,
             obj.properties.size, obj.properties.power))
     end)
-    layer.state = States.day
-
-    nightEffect:send("brightness", 1.0)
-    nightEffect:send("minLight", 0.001)
-    layer.effect = nightEffect
-    layer.time = 0.0
-    layer.dayLength = 10.0
-    layer.sunsetLength = 10.0
-    layer.nightLength = 10.0
-    layer.sunriseLength = 10.0
-
 end
 
 return Lighting
