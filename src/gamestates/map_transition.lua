@@ -55,7 +55,7 @@ function MapTransition:enter(prevState, exit)
     end
 
     self.camDisplacement = vector(vx, vy)
-    self.transitionTime = 1.0
+    self.transitionTime = exit.transitionTime
     self.elapsedTime = 0.0
 end
 

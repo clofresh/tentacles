@@ -1,4 +1,6 @@
-local Zones = {}
+local Zones = {
+    defaultTransitionTime = 0.75
+}
 
 Zones.Exit = Class{function(self, name, x, y, w, h, properties, layer)
     self.name = name
@@ -7,6 +9,7 @@ Zones.Exit = Class{function(self, name, x, y, w, h, properties, layer)
     self.w = w
     self.h = h
     self.dest = properties.dest
+    self.transitionTime = properties.transitionTime or Zones.defaultTransitionTime
 
     self.ox = properties.ox * layer.map.tileWidth
     self.oy = properties.oy * layer.map.tileHeight
