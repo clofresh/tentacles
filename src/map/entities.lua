@@ -54,6 +54,7 @@ end
 
 local registerPlayer = function(self, player)
     self.player = player
+    self.collider:register(player)
     table.insert(self.objects, player)
 end
 

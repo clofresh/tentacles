@@ -91,26 +91,27 @@ function Player.applyDamage(player, attack)
     end
 end
 
-function Player.load(layer, zone)
+function Player.load(map, start)
     local weapon = Stick()
     local player = Player(weapon)
-    local x = zone.x
-    local y = zone.y
     player.speed = 128
     player.hitRadius = 60
     player.w = 24
     player.h = 32
     player.dir = 0
-    layer.playerStart = vector(x, y)
-    Player.resetPhysics(player, layer, x, y)
-    layer:registerPlayer(player)
+
+    Player.resetPhysics(player, map, start)
     Game.hud:set("topleft", player.stats)
-    print("Created player at", x, y)
     return player
 end
 
-function Player.resetPhysics(player, layer, x, y)
-    player.body = layer.collider:newBody(x, y, "dynamic")
+function Player.resetPhysics(player, map, pos)
+    local entities = map("entities")
+    if not pos then
+        pos = map("zones").lastCheckpoint
+    end
+
+    player.body = entities.collider:newBody(pos.x, pos.y, "dynamic")
     player.shape = love.physics.newPolygonShape(
         -player.w / 2, -player.h / 2,
         player.w / 2, -player.h / 2,
@@ -120,10 +121,10 @@ function Player.resetPhysics(player, layer, x, y)
     )
     player.fixture = love.physics.newFixture(player.body, player.shape, 1)
     player.body:setAngularDamping(5)
-    layer.collider:register(player)
+    entities:registerPlayer(player)
 
-    player.torch = Lighting.newLight(x, y, 5, 5, false)
-    layer.map("lighting"):register(player.torch)
+    player.torch = Lighting.newLight(pos.x, pos.y, 5, 5, false)
+    map("lighting"):register(player.torch)
 end
 
 return Player

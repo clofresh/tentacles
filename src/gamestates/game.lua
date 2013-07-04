@@ -85,8 +85,8 @@ end
 function Game:enter(prevState, status)
     if status == "restart" then
         self.map = Map.load("map0.tmx")
-        local entities = self.map("entities")
-        Player.load(entities, self.map("zones"):get("playerStart"))
+        self.map("zones").lastCheckpoint = self.map("zones"):get("playerStart")
+        Player.load(self.map)
     end
     print("entering game " ..tostring(self.map))
 end

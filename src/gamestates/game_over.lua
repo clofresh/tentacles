@@ -34,15 +34,15 @@ end
 
 function GameOver:reset()
     local player = Game.map("entities").player
-    local playerStart = Game.map("entities").playerStart
     player.destroyed = false
     player.health = 3
-    player.body:setPosition(playerStart.x, playerStart.y)
     if self.status == "won" then
         print("Restarting")
         Gamestate.switch(Game, "restart")
     else
         print("Continuing")
+        local pos = Game.map("zones").lastCheckpoint
+        player.body:setPosition(pos.x, pos.y)
         Gamestate.switch(Game)
     end
 end

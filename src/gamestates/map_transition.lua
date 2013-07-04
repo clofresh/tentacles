@@ -73,9 +73,8 @@ function MapTransition:update(dt)
        self.oldMap("entities").collider:unregister(player)
        self.oldMap("entities").collider:destroy()
        Game.map = self.newMap
-       local entities = Game.map("entities")
-       entities:registerPlayer(player)
-       Player.resetPhysics(player, entities, pX, pY)
+       Game.map("zones").lastCheckpoint = vector(pX, pY)
+       Player.resetPhysics(player, Game.map)
        Gamestate.switch(Game)
     else
         local percent = dt / self.transitionTime
