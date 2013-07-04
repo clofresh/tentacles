@@ -44,10 +44,19 @@ function Game:update(dt)
     -- Update the camera's position
     if entities.player then
         local x, y = entities.player.body:getWorldCenter()
-        self.cam.x = math.clamp(x, WIDTH / 2,
-            self.map.width * self.map.tileWidth - WIDTH / 2)
-        self.cam.y = math.clamp(y, HEIGHT / 2,
-            self.map.height * self.map.tileHeight - HEIGHT / 2)
+        local mapWidth = self.map.width * self.map.tileWidth
+        if mapWidth > WIDTH then
+            self.cam.x = math.clamp(x, WIDTH / 2, mapWidth - WIDTH / 2)
+        else
+            self.cam.x = mapWidth / 2
+        end
+
+        local mapHeight = self.map.height * self.map.tileHeight
+        if mapHeight > HEIGHT then
+            self.cam.y = math.clamp(y, HEIGHT / 2, mapHeight - HEIGHT / 2)
+        else
+            self.cam.y = mapHeight / 2
+        end
 
         -- Update the map's draw range
         local camWorldWidth = WIDTH / self.cam.scale
