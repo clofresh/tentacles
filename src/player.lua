@@ -2,6 +2,25 @@ local joystick = require("src/input/joystick")
 local keyboard = require("src/input/keyboard")
 local mouse    = require("src/input/mouse")
 
+local PlayerStats = Class{function(self, player)
+    self.player = player
+end}
+
+function PlayerStats:update(dt)
+    self.output = {}
+    if self.player.health then
+        table.insert(self.output, string.format("Health: %f", self.player.health))
+    end
+    if self.player.body then
+        self.pos = vector(self.player.body:getWorldCenter())
+        table.insert(self.output, string.format("Pos: %f, %f", self.pos.x, self.pos.y))
+    end
+end
+
+function PlayerStats:draw(dirX, dirY)
+    Hud.printLines(self.output, "small", dirX, dirY)
+end
+
 local Player = Class{function(self, weapon)
     self.inputs = {joystick, keyboard, mouse}
     self.weapon = weapon
@@ -19,6 +38,7 @@ local Player = Class{function(self, weapon)
     self.blood:setSizes(0.5, 1, 1.5, 2)
     self.blood:setColors(255, 0, 0, 255, 55, 6, 5, 255)
     self.blood:stop()
+    self.stats = PlayerStats(self)
 end}
 
 function Player:type() return "Player" end
@@ -84,6 +104,7 @@ function Player.load(layer, zone)
     layer.playerStart = vector(x, y)
     Player.resetPhysics(player, layer, x, y)
     layer:registerPlayer(player)
+    Game.hud:set("topleft", player.stats)
     print("Created player at", x, y)
     return player
 end

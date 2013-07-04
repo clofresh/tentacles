@@ -7,6 +7,7 @@ Tentacle = require("src/tentacle")
 Obstacle = require("src/obstacle")
 Recorder = require("src/Recorder")
 Map      = require("src/map")
+Hud      = require("src/hud")
 
 Images = {}
 
@@ -28,6 +29,9 @@ function Game:init()
 
     -- Set up the map
     self.recorder = Recorder()
+
+    -- Set up the HUD
+    self.hud = Hud()
 end
 
 function Game:update(dt)
@@ -60,6 +64,7 @@ function Game:update(dt)
     self.recorder:update(dt)
 
     self.map("zones"):update(dt)
+    self.hud:update(dt)
 
     -- Check if we should change game state
     if (entities.player or {}).destroyed then
@@ -74,22 +79,7 @@ function Game:draw()
         self.map:draw()
     end)
 
-    love.graphics.setFont(Fonts.small)
-    love.graphics.print(
-        string.format("FPS: %d", love.timer.getFPS()),
-        1, 12
-    )
-
-    love.graphics.print(
-        string.format("Mem: %dKB", math.floor(collectgarbage("count"))),
-        1, 24
-    )
-
-    local player = self.map("entities").player
-    if player then
-        local x, y = player.body:getWorldCenter()
-        love.graphics.print(string.format("Pos: %f, %f", x, y), 1, 36)
-    end
+    self.hud:draw()
 end
 
 function Game:enter(prevState, status)
