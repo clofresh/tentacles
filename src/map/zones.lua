@@ -23,14 +23,22 @@ end}
 local update = function(self, dt)
     local player = self.map("entities").player
     if player then
-        local px, py = player.body:getWorldCenter()
-        for i, zone in pairs(self.objects) do
-            if zone.dest
-            and px > zone.x and px < zone.x + zone.w
-            and py > zone.y and py < zone.y + zone.h then
-                Gamestate.switch(MapTransition, zone)
-           end
+        local exit = self:inExit(player.body:getWorldCenter())
+        if exit and player.canExit then
+            Gamestate.switch(MapTransition, exit)
+        elseif not exit and not player.canExit then
+            player.canExit = true
         end
+    end
+end
+
+local inExit = function(self, x, y)
+    for i, zone in pairs(self.objects) do
+        if zone.dest
+        and x > zone.x and x < zone.x + zone.w
+        and y > zone.y and y < zone.y + zone.h then
+            return zone
+       end
     end
 end
 
@@ -39,6 +47,7 @@ local get = function(self, name)
 end
 
 function Zones.load(layer)
+    layer.inExit = inExit
     layer.update = update
     layer.get = get
     layer.zones = {}

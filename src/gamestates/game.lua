@@ -84,11 +84,17 @@ end
 
 function Game:enter(prevState, status)
     if status == "restart" then
-        self.map = Map.load("map0.tmx")
+        self.map = Map.load("0-start.tmx")
         self.map("zones").lastCheckpoint = self.map("zones"):get("playerStart")
         Player.load(self.map)
     end
     print("entering game " ..tostring(self.map))
+    local player = self.map("entities").player
+    if player and self.map("zones"):inExit(player.body:getWorldCenter()) then
+        player.canExit = false
+    else
+        player.canExit = true
+    end
 end
 
 return Game
