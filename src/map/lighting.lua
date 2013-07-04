@@ -130,8 +130,8 @@ function Lighting.load(layer)
     layer.draw = draw
     layer.register = register
     layer:toCustomLayer(function(obj)
-        return layer:register(Lighting.newLight(obj.x, obj.y,
-            obj.properties.size, obj.properties.power))
+        return layer:register(Lighting.newLight(obj.x + obj.width / 2,
+            obj.y + obj.height / 2, obj.properties.size, obj.properties.power))
     end)
 end
 
