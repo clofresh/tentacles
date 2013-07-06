@@ -59,7 +59,7 @@ function MapTransition:update(dt)
         local camWorldX = cam.x - (camWorldWidth / 2)
         local camWorldY = cam.y - (camWorldHeight / 2)
         self.oldMap:setDrawRange(camWorldX, camWorldY, camWorldWidth, camWorldHeight)
-        self.newMap:setDrawRange(camWorldX, camWorldY, camWorldWidth, camWorldHeight)
+        self.newMap:setDrawRange(camWorldX - exit.ox, camWorldY - exit.oy, camWorldWidth, camWorldHeight)
 
         self.oldMap("lighting"):update(dt, cam)
         self.newMap("lighting"):update(dt, cam, self.exit.ox, self.exit.oy)
@@ -68,11 +68,11 @@ end
 
 function MapTransition:draw()
     self.cam:draw(function()
-        self.oldMap:draw()
         love.graphics.push()
         love.graphics.translate(self.exit.ox, self.exit.oy)
         self.newMap:draw()
         love.graphics.pop()
+        self.oldMap:draw()
     end)
 end
 
