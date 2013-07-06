@@ -1,4 +1,4 @@
-local Camera = require("lib/hump/camera")
+Camera   = require("src/camera")
 Player   = require("src/player")
 Stick    = require("src/weapon/stick")
 Critter  = require("src/critter")
@@ -49,26 +49,7 @@ function Game:update(dt)
     -- Update the camera's position
     if entities.player then
         local x, y = entities.player.body:getWorldCenter()
-        local mapWidth = self.map.width * self.map.tileWidth
-        if mapWidth > WIDTH then
-            self.cam.x = math.clamp(x, WIDTH / 2, mapWidth - WIDTH / 2)
-        else
-            self.cam.x = mapWidth / 2
-        end
-
-        local mapHeight = self.map.height * self.map.tileHeight
-        if mapHeight > HEIGHT then
-            self.cam.y = math.clamp(y, HEIGHT / 2, mapHeight - HEIGHT / 2)
-        else
-            self.cam.y = mapHeight / 2
-        end
-
-        -- Update the map's draw range
-        local camWorldWidth = WIDTH / self.cam.scale
-        local camWorldHeight = HEIGHT / self.cam.scale
-        local camWorldX = self.cam.x - (camWorldWidth / 2)
-        local camWorldY = self.cam.y - (camWorldHeight / 2)
-        self.map:setDrawRange(camWorldX, camWorldY,camWorldWidth, camWorldHeight)
+        self.cam:update(dt, x, y, self.map)
     end
 
     -- Update the lighting
