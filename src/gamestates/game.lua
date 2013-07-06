@@ -79,7 +79,7 @@ end
 
 function Game:enter(prevState, status)
     if status == "restart" then
-        self.map = Map.load("0-start.tmx")
+        self.map = Map.load("map0.tmx")
         self.map("zones").lastCheckpoint = self.map("zones"):get("playerStart")
         Player.load(self.map)
     end
