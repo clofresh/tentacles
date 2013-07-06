@@ -6,57 +6,30 @@ function MapTransition:enter(prevState, exit)
     self.cam = cam
     self.exit = exit
     self.oldMap = prevState.map
-
-    local offset = vector(exit.ox, exit.oy)
-    local center2 = offset + vector(
-        self.newMap.width * self.newMap.tileWidth / 2,
-        self.newMap.height * self.newMap.tileHeight / 2)
-    local left1   = cam.x - WIDTH / 2
-    local top1    = cam.y - HEIGHT / 2
-    local right1  = cam.x + WIDTH / 2
-    local bottom1 = cam.y + HEIGHT / 2
-    local left2   = exit.ox
-    local top2    = exit.oy
-    local right2  = exit.ox + self.newMap.width * self.newMap.tileWidth
-    local bottom2 = exit.oy + self.newMap.height * self.newMap.tileHeight
-
-    local vx
-    if left1 >= left2 and right1 <= right2 then
-        vx = 0
-    else
-        local furthest
-        if math.abs(center2.x - left1) > math.abs(center2.x - right1) then
-            furthest = left1
-        else
-            furthest = right1
-        end
-        if math.abs(furthest - left2) < math.abs(furthest - right2) then
-            vx = left2 - furthest
-        else
-            vx = right2 - furthest
-        end
-    end
-
-    local vy
-    if top1 >= top2 and bottom1 <= bottom2 then
-        vy = 0
-    else
-        local furthest
-        if math.abs(center2.y - top1) > math.abs(center2.y - bottom1) then
-            furthest = top1
-        else
-            furthest = bottom1
-        end
-        if math.abs(furthest - top2) < math.abs(furthest - bottom2) then
-            vy = top2 - furthest
-        else
-            vy = bottom2 - furthest
-        end
-    end
-
-    self.camDisplacement = vector(vx, vy)
     self.transitionTime = exit.transitionTime
     self.elapsedTime = 0.0
+
+    -- Get where the player is in prevMap's coordinates
+    local player = self.oldMap("entities").player
+    local pX1, pY1 = player.body:getPosition()
+
+    -- Get the camera position in prevMap's coordinates
+    local start = vector(cam.x, cam.y)
+
+    -- Compute newMap's dimensions in pixels
+    local newMapWidth = self.newMap.width * self.newMap.tileWidth
+    local newMapHeight = self.newMap.height * self.newMap.tileHeight
+
+    -- Compute the player's position in newMap's coordinates
+    local pX2 = pX1 - exit.ox
+    local pY2 = pY1 - exit.oy
+
+    -- What the camera's position would be in newMap's coordinates 
+    local target = vector(Camera.computePos(pX2, pY2, newMapWidth, newMapHeight))
+
+    -- Compute the displacement vector to get from the current camera's
+    -- position to newMap's position if newMap were in prevMap's coordinates
+    self.camDisplacement = target - start + vector(exit.ox, exit.oy)
 end
 
 function MapTransition:update(dt)
