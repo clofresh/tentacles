@@ -10,6 +10,7 @@ Map      = require("src/map")
 Hud      = require("src/hud")
 
 Images = {}
+Music = {}
 
 local Game = {}
 
@@ -32,6 +33,10 @@ function Game:init()
 
     -- Set up the HUD
     self.hud = Hud()
+
+    -- Start the music
+    Music.main = love.audio.newSource("sound/lawyersinlove.mp3")
+    love.audio.play(Music.main)
 end
 
 function Game:update(dt)
