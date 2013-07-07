@@ -39,6 +39,7 @@ local Player = Class{function(self, weapon)
     self.blood:setColors(255, 0, 0, 255, 55, 6, 5, 255)
     self.blood:stop()
     self.stats = PlayerStats(self)
+    self.inputQueue = {}
 end}
 
 function Player:type() return "Player" end
@@ -54,27 +55,107 @@ function Player:destroy()
 end
 
 function Player:update(dt, game)
-    if self.sprinting then
-        self.speed = self.baseSpeed * 3
-    else
-        self.speed = self.baseSpeed
-    end
     self.dir = self.body:getAngle()
+
+    -- Collect and process any inputs
+    local events = {}
     for i, input in pairs(self.inputs) do
-        input.update(self, dt, game)
+        events = input.getInput(events)
     end
-    if self.velocity then
-        self.body:setLinearVelocity(self.velocity.x, self.velocity.y)
-        self.velocity = nil
-    else
-        self.body:setLinearVelocity(0, 0)
-    end
+    self:queueInput(dt, events)
+    self:processInputQueue()
+
+    -- Update other stuff
     self.weapon:update(self, dt, game)
     self.blood:update(dt)
 
     local x, y = self.body:getWorldCenter()
     self.torch.x = x + 40
     self.torch.y = y
+end
+
+function Player:queueInput(dt, events)
+    table.insert(self.inputQueue, events)
+end
+
+function Player:processInputQueue()
+
+    -- Pop the last two set of events from the input queue
+    local queueLen = #self.inputQueue
+    local current, prev
+    if queueLen >= 2 then
+        current = table.remove(self.inputQueue)
+        prev = table.remove(self.inputQueue)
+    elseif queueLen == 1 then
+        current = table.remove(self.inputQueue)
+        prev = {}
+    elseif queueLen == 0 then
+        current = {}
+        prev = {}
+    end
+
+    -- Toggle the torch
+    if current.toggleTorch and not prev.toggleTorch then
+        self.torch.active = not self.torch.active
+    end
+
+    -- Toggle the hero image
+    if current.toggleHero and not prev.toggleHero then
+        if self.image == Images.hero1 then
+            self.image = Images.hero2
+        else
+            self.image = Images.hero1
+        end
+    end
+
+    -- Either attack or move, not both
+    if current.attackLeft then
+        self.weapon:primaryAttack(-3)
+    elseif current.attackRight then
+        self.weapon:primaryAttack(3)
+    else
+        local vx = 0
+        local vy = 0
+        local speed
+
+        -- Determine the move speed
+        if current.sprinting then
+            speed = self.baseSpeed * 3
+        else
+            speed = self.baseSpeed
+        end
+
+        -- Determine the move x direction
+        if current.dx and math.abs(current.dx) > 0.1 then
+            vx = current.dx * speed
+        end
+
+        -- Determine the move y direction
+        if current.dy and math.abs(current.dy) > 0.1 then
+            vy = current.dy * speed
+        end
+
+        if vx ~= 0 or vy ~= 0 then
+            -- If moved, set the velocity vector
+            self.body:setLinearVelocity(vx, vy)
+
+            -- And the direction the player is facing
+            local targetAngle
+            if vx >= 0 then
+                targetAngle = math.atan(vy / vx)
+            else
+                targetAngle = math.atan(vy / vx) + (math.pi)
+            end
+            local angleDiff = targetAngle - self.dir
+            self.body:setAngle(targetAngle)
+        else
+            self.body:setLinearVelocity(0, 0)
+        end
+    end
+
+    -- Requeue the current input, which will be the prev input next frame
+    table.insert(self.inputQueue, current)
+
 end
 
 function Player:draw()

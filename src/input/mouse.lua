@@ -1,9 +1,10 @@
 local mouse = {}
 
-mouse.update = function(player, dt, game)
+mouse.getInput = function(events)
     if love.mouse.isDown("l") then
-        player.weapon:primaryAttack()
+        events.attackLeft = true
     end
+    return events
 end
 
 return mouse
