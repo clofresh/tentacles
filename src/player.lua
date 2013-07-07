@@ -54,6 +54,11 @@ function Player:destroy()
 end
 
 function Player:update(dt, game)
+    if self.sprinting then
+        self.speed = self.baseSpeed * 3
+    else
+        self.speed = self.baseSpeed
+    end
     self.dir = self.body:getAngle()
     for i, input in pairs(self.inputs) do
         input.update(self, dt, game)
@@ -116,7 +121,8 @@ end
 function Player.load(map, start)
     local weapon = Stick()
     local player = Player(weapon)
-    player.speed = 128
+    player.baseSpeed = 128
+    player.sprinting = false
     player.hitRadius = 60
     player.w = 24
     player.h = 32

@@ -22,6 +22,11 @@ keyboard.update = function(player, dt)
         elseif lk.isDown("d") then
             dx = player.speed
         end
+        if lk.isDown("lshift") then
+            player.sprinting = true
+        else
+            player.sprinting = false
+        end
         if dx ~= 0 or dy ~= 0 then
             player.velocity = vector(dx, dy)
 

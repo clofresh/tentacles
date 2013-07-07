@@ -46,7 +46,8 @@ function Tentacle.idle(tentacle, dt, game)
     local x1, y1, x2, y2 = Tentacle.getRangeBox(tentacle)
     local nearby = game.collider:findInArea(x1, y1, x2, y2,
         function(entity)
-            return entity:type() == "Player"
+                return entity and entity:type() == "Player"
+
         end)
 
     if tentacle.idleTime > 10 or #nearby > 0 then
