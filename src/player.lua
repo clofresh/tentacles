@@ -1,6 +1,9 @@
 local joystick = require("src/input/joystick")
 local keyboard = require("src/input/keyboard")
 local mouse    = require("src/input/mouse")
+local Roll     = require("src/abilities/roll")
+local Stick    = require("src/abilities/stick")
+local Move     = require("src/abilities/move")
 
 local PlayerStats = Class{function(self, player)
     self.player = player
@@ -21,72 +24,10 @@ function PlayerStats:draw(dirX, dirY)
     Hud.printLines(self.output, "small", dirX, dirY)
 end
 
-local RollState = Class{function(self)
-    self:reset()
-end}
-RollState.maxAngle = math.pi / 2
 
-function RollState:update(dt, events)
-    self.time = self.time + dt
-    self:state(dt, events)
-end
-
-function RollState:idle(dt, events)
-    if events.dx or events.dy then
-        local d = vector(events.dx or 0, events.dy or 0)
-        if not self.inputDir then
-            -- Initial direction
-            self.inputDir = d
-        elseif d.x ~= 0 or d.y ~= 0 then
-            local angle = math.acos((d * self.inputDir) / (d:len() * self.inputDir:len()))
-            if angle >= RollState.maxAngle then
-                -- Changed direction too much, reset
-                self:reset()
-            end
-        end
-    elseif not (events.dx or events.dy) and self.inputDir then
-        -- Pressed a direction, then let go
-        self.state = self.netural
-    end
-end
-
-function RollState:netural(dt, events)
-    if self.time <= 0.5 then
-        local d = vector(events.dx or 0, events.dy or 0)
-        if d.x ~= 0 or d.y ~= 0 then
-            local angle = math.acos((d * self.inputDir) / (d:len() * self.inputDir:len()))
-            if angle < RollState.maxAngle then
-                -- Rollin'
-                self.time = 0
-                self.rollDir = d:normalized()
-                self.state = self.rolling
-            else
-                -- Pressed a different direction than the initial one
-                self:reset()
-            end
-        end
-    else
-        -- Timed out
-        self:reset()
-    end
-end
-
-function RollState:rolling(dt, events)
-    if self.time > 0.075 then
-        self:reset()
-    end
-end
-
-function RollState:reset()
-    self.time = 0
-    self.state = RollState.idle
-    self.inputDir = nil
-    self.rollDir = nil
-end
-
-local Player = Class{function(self, weapon)
+local Player = Class{function(self)
     self.inputs = {joystick, keyboard, mouse}
-    self.weapon = weapon
+    self.weapon = Stick()
     self.health = 10
     self.image = Images.hero1
     self.blood = love.graphics.newParticleSystem(Images.blood, 100)
@@ -103,7 +44,11 @@ local Player = Class{function(self, weapon)
     self.blood:stop()
     self.stats = PlayerStats(self)
     self.inputQueue = {}
-    self.rollState = RollState()
+    self.abilities = {
+        self.weapon,
+        Roll(),
+        Move(),
+    }
 end}
 
 function Player:type() return "Player" end
@@ -130,7 +75,6 @@ function Player:update(dt, game)
     self:processInputQueue(dt)
 
     -- Update other stuff
-    self.weapon:update(self, dt, game)
     self.blood:update(dt)
 
     local x, y = self.body:getWorldCenter()
@@ -164,54 +108,12 @@ function Player:processInputQueue(dt)
     end
 
     -- Either attack or move, not both
-    if current.attackLeft then
-        self.weapon:primaryAttack(-3)
-    elseif current.attackRight then
-        self.weapon:primaryAttack(3)
-    elseif self.rollState.rollDir then
-        local rollVel = self.rollState.rollDir * 1000
-        self.body:setLinearVelocity(rollVel.x, rollVel.y)
-    else
-        local vx = 0
-        local vy = 0
-        local speed
-
-        -- Determine the move speed
-        if current.sprinting then
-            speed = self.baseSpeed * 3
-        else
-            speed = self.baseSpeed
-        end
-
-        -- Determine the move x direction
-        if current.dx and math.abs(current.dx) > 0.1 then
-            vx = current.dx * speed
-        end
-
-        -- Determine the move y direction
-        if current.dy and math.abs(current.dy) > 0.1 then
-            vy = current.dy * speed
-        end
-
-        if vx ~= 0 or vy ~= 0 then
-            -- If moved, set the velocity vector
-            self.body:setLinearVelocity(vx, vy)
-
-            -- And the direction the player is facing
-            local targetAngle
-            if vx >= 0 then
-                targetAngle = math.atan(vy / vx)
-            else
-                targetAngle = math.atan(vy / vx) + (math.pi)
-            end
-            local angleDiff = targetAngle - self.dir
-            self.body:setAngle(targetAngle)
-        else
-            self.body:setLinearVelocity(0, 0)
+    for i, ability in pairs(self.abilities) do
+        local shouldContinue = ability:update(self, dt, current, prev)
+        if not shouldContinue then
+            break
         end
     end
-
-    self.rollState:update(dt, current)
 
     -- Requeue the current input, which will be the prev input next frame
     table.insert(self.inputQueue, current)
@@ -260,8 +162,7 @@ function Player:resetPhysics(map, pos)
 end
 
 function Player.load(map, start)
-    local weapon = Stick()
-    local player = Player(weapon)
+    local player = Player()
     player.baseSpeed = 128
     player.sprinting = false
     player.hitRadius = 60

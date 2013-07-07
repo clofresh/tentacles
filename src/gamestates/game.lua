@@ -1,6 +1,5 @@
 Camera   = require("src/camera")
 Player   = require("src/player")
-Stick    = require("src/weapon/stick")
 Critter  = require("src/critter")
 Collider = require("src/collider")
 Tentacle = require("src/tentacle")
