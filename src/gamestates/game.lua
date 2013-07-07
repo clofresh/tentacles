@@ -9,22 +9,9 @@ Recorder = require("src/Recorder")
 Map      = require("src/map")
 Hud      = require("src/hud")
 
-Images = {}
-Music = {}
-
 local Game = {}
 
 function Game:init()
-
-    -- Images
-    Images.blood = love.graphics.newImage("img/blood.gif")
-    Images.seg1  = love.graphics.newImage("img/tentacle4_seg1.png")
-    Images.seg2  = love.graphics.newImage("img/tentacle4_seg2.png")
-    Images.seg3  = love.graphics.newImage("img/tentacle4_seg3.png")
-    Images.blob  = love.graphics.newImage("img/blob.png")
-    Images.hero1  = love.graphics.newImage("img/hero1.png")
-    Images.hero2  = love.graphics.newImage("img/hero2.png")
-
     -- Set up the camera
     self.cam = Camera()
 
@@ -35,7 +22,6 @@ function Game:init()
     self.hud = Hud()
 
     -- Start the music
-    Music.main = love.audio.newSource("sound/lawyersinlove.mp3")
     love.audio.play(Music.main)
 end
 
