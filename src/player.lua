@@ -21,6 +21,69 @@ function PlayerStats:draw(dirX, dirY)
     Hud.printLines(self.output, "small", dirX, dirY)
 end
 
+local RollState = Class{function(self)
+    self:reset()
+end}
+RollState.maxAngle = math.pi / 2
+
+function RollState:update(dt, events)
+    self.time = self.time + dt
+    self:state(dt, events)
+end
+
+function RollState:idle(dt, events)
+    if events.dx or events.dy then
+        local d = vector(events.dx or 0, events.dy or 0)
+        if not self.inputDir then
+            -- Initial direction
+            self.inputDir = d
+        elseif d.x ~= 0 or d.y ~= 0 then
+            local angle = math.acos((d * self.inputDir) / (d:len() * self.inputDir:len()))
+            if angle >= RollState.maxAngle then
+                -- Changed direction too much, reset
+                self:reset()
+            end
+        end
+    elseif not (events.dx or events.dy) and self.inputDir then
+        -- Pressed a direction, then let go
+        self.state = self.netural
+    end
+end
+
+function RollState:netural(dt, events)
+    if self.time <= 0.5 then
+        local d = vector(events.dx or 0, events.dy or 0)
+        if d.x ~= 0 or d.y ~= 0 then
+            local angle = math.acos((d * self.inputDir) / (d:len() * self.inputDir:len()))
+            if angle < RollState.maxAngle then
+                -- Rollin'
+                self.time = 0
+                self.rollDir = d:normalized()
+                self.state = self.rolling
+            else
+                -- Pressed a different direction than the initial one
+                self:reset()
+            end
+        end
+    else
+        -- Timed out
+        self:reset()
+    end
+end
+
+function RollState:rolling(dt, events)
+    if self.time > 0.075 then
+        self:reset()
+    end
+end
+
+function RollState:reset()
+    self.time = 0
+    self.state = RollState.idle
+    self.inputDir = nil
+    self.rollDir = nil
+end
+
 local Player = Class{function(self, weapon)
     self.inputs = {joystick, keyboard, mouse}
     self.weapon = weapon
@@ -40,6 +103,7 @@ local Player = Class{function(self, weapon)
     self.blood:stop()
     self.stats = PlayerStats(self)
     self.inputQueue = {}
+    self.rollState = RollState()
 end}
 
 function Player:type() return "Player" end
@@ -63,7 +127,7 @@ function Player:update(dt, game)
         events = input.getInput(events)
     end
     self:queueInput(dt, events)
-    self:processInputQueue()
+    self:processInputQueue(dt)
 
     -- Update other stuff
     self.weapon:update(self, dt, game)
@@ -78,21 +142,12 @@ function Player:queueInput(dt, events)
     table.insert(self.inputQueue, events)
 end
 
-function Player:processInputQueue()
+function Player:processInputQueue(dt)
 
     -- Pop the last two set of events from the input queue
     local queueLen = #self.inputQueue
-    local current, prev
-    if queueLen >= 2 then
-        current = table.remove(self.inputQueue)
-        prev = table.remove(self.inputQueue)
-    elseif queueLen == 1 then
-        current = table.remove(self.inputQueue)
-        prev = {}
-    elseif queueLen == 0 then
-        current = {}
-        prev = {}
-    end
+    local current = table.remove(self.inputQueue) or {}
+    local prev = table.remove(self.inputQueue) or {}
 
     -- Toggle the torch
     if current.toggleTorch and not prev.toggleTorch then
@@ -113,6 +168,9 @@ function Player:processInputQueue()
         self.weapon:primaryAttack(-3)
     elseif current.attackRight then
         self.weapon:primaryAttack(3)
+    elseif self.rollState.rollDir then
+        local rollVel = self.rollState.rollDir * 1000
+        self.body:setLinearVelocity(rollVel.x, rollVel.y)
     else
         local vx = 0
         local vy = 0
@@ -152,6 +210,8 @@ function Player:processInputQueue()
             self.body:setLinearVelocity(0, 0)
         end
     end
+
+    self.rollState:update(dt, current)
 
     -- Requeue the current input, which will be the prev input next frame
     table.insert(self.inputQueue, current)
