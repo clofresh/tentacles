@@ -53,42 +53,64 @@ function Player:destroy()
     self.inputs = nil
 end
 
-function Player.update(player, dt, game)
-    player.dir = player.body:getAngle()
-    for i, input in pairs(player.inputs) do
-        input.update(player, dt, game)
+function Player:update(dt, game)
+    self.dir = self.body:getAngle()
+    for i, input in pairs(self.inputs) do
+        input.update(self, dt, game)
     end
-    if player.velocity then
-        player.body:setLinearVelocity(player.velocity.x, player.velocity.y)
-        player.velocity = nil
+    if self.velocity then
+        self.body:setLinearVelocity(self.velocity.x, self.velocity.y)
+        self.velocity = nil
     else
-        player.body:setLinearVelocity(0, 0)
+        self.body:setLinearVelocity(0, 0)
     end
-    player.weapon:update(player, dt, game)
-    player.blood:update(dt)
+    self.weapon:update(self, dt, game)
+    self.blood:update(dt)
 
-    local x, y = player.body:getWorldCenter()
-    player.torch.x = x + 40
-    player.torch.y = y
+    local x, y = self.body:getWorldCenter()
+    self.torch.x = x + 40
+    self.torch.y = y
 end
 
-function Player.draw(player)
-    love.graphics.polygon("fill", player.body:getWorldPoints(
-                                        player.shape:getPoints()))
-    local x, y = player.body:getWorldCenter()
+function Player:draw()
+    love.graphics.polygon("fill", self.body:getWorldPoints(
+                                        self.shape:getPoints()))
+    local x, y = self.body:getWorldCenter()
     local scaleFactor = 0.5
-    love.graphics.draw(player.image, x, y, r, scaleFactor, scaleFactor, 69, 104)
-    player.weapon:draw(player)
-    love.graphics.draw(player.blood)
+    love.graphics.draw(self.image, x, y, r, scaleFactor, scaleFactor, 69, 104)
+    self.weapon:draw(self)
+    love.graphics.draw(self.blood)
 end
 
-function Player.applyDamage(player, attack)
+function Player:applyDamage(attack)
     if attack.damage then
-        player.health = player.health - attack.damage
-        if player.health <= 0 then
-            player.destroyed = true
+        self.health = self.health - attack.damage
+        if self.health <= 0 then
+            self.destroyed = true
         end
     end
+end
+
+function Player:resetPhysics(map, pos)
+    local entities = map("entities")
+    if not pos then
+        pos = map("zones").lastCheckpoint
+    end
+
+    self.body = entities.collider:newBody(pos.x, pos.y, "dynamic")
+    self.shape = love.physics.newPolygonShape(
+        -self.w / 2, -self.h / 2,
+        self.w / 2, -self.h / 2,
+        self.w * .75, 0,
+        self.w / 2, self.h / 2,
+        -self.w / 2, self.h / 2
+    )
+    self.fixture = love.physics.newFixture(self.body, self.shape, 1)
+    self.body:setAngularDamping(5)
+    entities:registerPlayer(self)
+
+    self.torch = Lighting.newLight(pos.x, pos.y, 5, 5, false)
+    map("lighting"):register(self.torch)
 end
 
 function Player.load(map, start)
@@ -100,31 +122,9 @@ function Player.load(map, start)
     player.h = 32
     player.dir = 0
 
-    Player.resetPhysics(player, map, start)
+    player:resetPhysics(map, start)
     Game.hud:set("topleft", player.stats)
     return player
-end
-
-function Player.resetPhysics(player, map, pos)
-    local entities = map("entities")
-    if not pos then
-        pos = map("zones").lastCheckpoint
-    end
-
-    player.body = entities.collider:newBody(pos.x, pos.y, "dynamic")
-    player.shape = love.physics.newPolygonShape(
-        -player.w / 2, -player.h / 2,
-        player.w / 2, -player.h / 2,
-        player.w * .75, 0,
-        player.w / 2, player.h / 2,
-        -player.w / 2, player.h / 2
-    )
-    player.fixture = love.physics.newFixture(player.body, player.shape, 1)
-    player.body:setAngularDamping(5)
-    entities:registerPlayer(player)
-
-    player.torch = Lighting.newLight(pos.x, pos.y, 5, 5, false)
-    map("lighting"):register(player.torch)
 end
 
 return Player
