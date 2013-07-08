@@ -1,6 +1,6 @@
 local Torch = {}
 
-local update = function(self, player, dt, current, prev)
+local update = function(self, dt, player, current, prev)
     local x, y = player.body:getWorldCenter()
     self.x = x + 40
     self.y = y

@@ -115,14 +115,10 @@ function Collider:beginContact(a, b, contact)
         entityA.blood:start()
     elseif aType == "Tentacle" and bType == "Player" then
         applyForce(a, b, contact, 1)
-        entityB:applyDamage(entityA)
-        entityB.blood:setPosition(contact:getPositions())
-        entityB.blood:start()
+        entityB:applyDamage(entityA, contact)
     elseif aType == "Player" and bType == "Tentacle" then
         applyForce(a, b, contact, -1)
-        entityA:applyDamage(entityB)
-        entityA.blood:setPosition(contact:getPositions())
-        entityA.blood:start()
+        entityA:applyDamage(entityB, contact)
     end
 end
 

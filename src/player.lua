@@ -3,6 +3,7 @@ local keyboard = require("src/input/keyboard")
 local mouse    = require("src/input/mouse")
 
 -- Player abilities
+local Blood    = require("src/abilities/blood")
 local Debug    = require("src/abilities/debug")
 local Move     = require("src/abilities/move")
 local Roll     = require("src/abilities/roll")
@@ -33,18 +34,6 @@ local Player = Class{function(self)
     self.inputs = {joystick, keyboard, mouse}
     self.health = 10
     self.image = Images.hero1
-    self.blood = love.graphics.newParticleSystem(Images.blood, 100)
-    self.blood:start()
-    self.blood:setEmissionRate(100)
-    self.blood:setSpeed(20, 100)
-    self.blood:setGravity(100, 200)
-    self.blood:setLifetime(0.125)
-    self.blood:setParticleLife(0.25)
-    self.blood:setDirection(180)
-    self.blood:setSpread(20)
-    self.blood:setSizes(0.5, 1, 1.5, 2)
-    self.blood:setColors(255, 0, 0, 255, 55, 6, 5, 255)
-    self.blood:stop()
     self.stats = PlayerStats(self)
     self.inputQueue = {}
     self.abilities = {
@@ -52,6 +41,7 @@ local Player = Class{function(self)
         weapon = Stick(),
         roll = Roll(),
         move = Move(),
+        blood = Blood(),
     }
 end}
 
@@ -68,8 +58,6 @@ function Player:destroy()
 end
 
 function Player:update(dt, game)
-    self.dir = self.body:getAngle()
-
     -- Collect and process any inputs
     local current = {}
     for i, input in pairs(self.inputs) do
@@ -78,7 +66,7 @@ function Player:update(dt, game)
 
     -- Update abilities
     for i, ability in pairs(self.abilities) do
-        local shouldContinue = ability:update(self, dt, current, self.prev)
+        local shouldContinue = ability:update(dt, self, current, self.prev)
         if not shouldContinue then
             break
         end
@@ -86,27 +74,28 @@ function Player:update(dt, game)
 
     -- Save the current input as the next frame's prev input
     self.prev = current
-
-    -- Update other stuff
-    self.blood:update(dt)
 end
 
 function Player:draw()
-    love.graphics.polygon("fill", self.body:getWorldPoints(
-                                        self.shape:getPoints()))
+    -- Draw the player image
     local x, y = self.body:getWorldCenter()
     local scaleFactor = 0.5
     love.graphics.draw(self.image, x, y, r, scaleFactor, scaleFactor, 69, 104)
-    self.abilities.weapon:draw(self)
-    love.graphics.draw(self.blood)
+
+    for i, ability in pairs(self.abilities) do
+        if ability.draw then
+            ability:draw(self)
+        end
+    end
 end
 
-function Player:applyDamage(attack)
+function Player:applyDamage(attack, contact)
     if attack.damage then
         self.health = self.health - attack.damage
         if self.health <= 0 then
             self.destroyed = true
         end
+        self.abilities.blood:trigger(contact)
     end
 end
 

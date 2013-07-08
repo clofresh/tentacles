@@ -3,12 +3,12 @@ local Roll = Class{function(self)
 end}
 Roll.maxAngle = math.pi / 2
 
-function Roll:update(player, dt, current, prev)
+function Roll:update(dt, player, current, prev)
     self.time = self.time + dt
-    return self:state(player, dt, current, prev)
+    return self:state(dt, player, current, prev)
 end
 
-function Roll:idle(player, dt, current, prev)
+function Roll:idle(dt, player, current, prev)
     if current.dx or current.dy then
         local d = vector(current.dx or 0, current.dy or 0)
         if not self.inputDir then
@@ -28,7 +28,7 @@ function Roll:idle(player, dt, current, prev)
     return true
 end
 
-function Roll:netural(player, dt, current, prev)
+function Roll:netural(dt, player, current, prev)
     if self.time <= 0.5 then
         local d = vector(current.dx or 0, current.dy or 0)
         if d.x ~= 0 or d.y ~= 0 then
@@ -50,7 +50,7 @@ function Roll:netural(player, dt, current, prev)
     return true
 end
 
-function Roll:rolling(player, dt, current, prev)
+function Roll:rolling(dt, player, current, prev)
     if self.time > 0.075 then
         self:reset()
         return true

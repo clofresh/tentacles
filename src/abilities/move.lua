@@ -1,7 +1,9 @@
 local Move = Class{function(self)
 end}
 
-function Move:update(player, dt, current, prev)
+function Move:update(dt, player, current, prev)
+    player.dir = player.body:getAngle()
+
     local vx = 0
     local vy = 0
     local speed

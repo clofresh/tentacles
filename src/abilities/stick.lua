@@ -29,7 +29,7 @@ function Stick:destroy()
     self.state = nil
 end
 
-function Stick:idle(player, dt, current, prev)
+function Stick:idle(dt, player, current, prev)
     if self.swingSpeed ~= nil then
         self.state = self.swing
         self.swingTime = 0
@@ -51,7 +51,7 @@ function Stick:idle(player, dt, current, prev)
     end
 end
 
-function Stick:swing(player, dt, current, prev)
+function Stick:swing(dt, player, current, prev)
     if self.swingSpeed == nil or self.swingTime > self.maxSwingTime then
         self.swingSpeed = nil
         self.state = self.cooldown
@@ -67,7 +67,7 @@ function Stick:swing(player, dt, current, prev)
     end
 end
 
-function Stick:cooldown(player, dt, current, prev)
+function Stick:cooldown(dt, player, current, prev)
     if self.cooldownTime > self.maxCooldownTime then
         self.state = self.idle
         self.cooldownTime = nil
@@ -77,7 +77,7 @@ function Stick:cooldown(player, dt, current, prev)
     return true
 end
 
-function Stick:update(player, dt, current, prev)
+function Stick:update(dt, player, current, prev)
     if not self.state then
         self.state = Stick.idle
     end
@@ -90,7 +90,7 @@ function Stick:update(player, dt, current, prev)
         self.swingSpeed = nil
     end
 
-    return self:state(player, dt, current, prev)
+    return self:state(dt, player, current, prev)
 end
 
 function Stick:draw()
