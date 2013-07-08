@@ -6,11 +6,11 @@ joystick.getInput = function(events)
     local joyNum = 1
 
     if dong.isDown(joyNum, "A") then
-        events.leftAttack = true
+        events.attackLeft = true
     end
 
     if dong.isDown(joyNum, "X") then
-        events.rightAttack = true
+        events.attackRight = true
     end
 
     events.dx, events.dy = dong.ls(joyNum)
