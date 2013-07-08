@@ -1,9 +1,12 @@
 local joystick = require("src/input/joystick")
 local keyboard = require("src/input/keyboard")
 local mouse    = require("src/input/mouse")
+
+-- Player abilities
+local Move     = require("src/abilities/move")
 local Roll     = require("src/abilities/roll")
 local Stick    = require("src/abilities/stick")
-local Move     = require("src/abilities/move")
+local Torch    = require("src/abilities/torch")
 
 local PlayerStats = Class{function(self, player)
     self.player = player
@@ -27,7 +30,6 @@ end
 
 local Player = Class{function(self)
     self.inputs = {joystick, keyboard, mouse}
-    self.weapon = Stick()
     self.health = 10
     self.image = Images.hero1
     self.blood = love.graphics.newParticleSystem(Images.blood, 100)
@@ -45,16 +47,16 @@ local Player = Class{function(self)
     self.stats = PlayerStats(self)
     self.inputQueue = {}
     self.abilities = {
-        self.weapon,
-        Roll(),
-        Move(),
+        weapon = Stick(),
+        roll = Roll(),
+        move = Move(),
     }
 end}
 
 function Player:type() return "Player" end
 function Player:destroy()
-    self.weapon:destroy()
-    self.weapon = nil
+    self.abilities.weapon:destroy()
+    self.abilities.weapon = nil
     self.fixture:destroy()
     self.fixture = nil
     self.body:destroy()
@@ -76,10 +78,6 @@ function Player:update(dt, game)
 
     -- Update other stuff
     self.blood:update(dt)
-
-    local x, y = self.body:getWorldCenter()
-    self.torch.x = x + 40
-    self.torch.y = y
 end
 
 function Player:queueInput(dt, events)
@@ -93,11 +91,6 @@ function Player:processInputQueue(dt)
     local current = table.remove(self.inputQueue) or {}
     local prev = table.remove(self.inputQueue) or {}
 
-    -- Toggle the torch
-    if current.toggleTorch and not prev.toggleTorch then
-        self.torch.active = not self.torch.active
-    end
-
     -- Toggle the hero image
     if current.toggleHero and not prev.toggleHero then
         if self.image == Images.hero1 then
@@ -107,7 +100,7 @@ function Player:processInputQueue(dt)
         end
     end
 
-    -- Either attack or move, not both
+    -- Update abilities
     for i, ability in pairs(self.abilities) do
         local shouldContinue = ability:update(self, dt, current, prev)
         if not shouldContinue then
@@ -126,7 +119,7 @@ function Player:draw()
     local x, y = self.body:getWorldCenter()
     local scaleFactor = 0.5
     love.graphics.draw(self.image, x, y, r, scaleFactor, scaleFactor, 69, 104)
-    self.weapon:draw(self)
+    self.abilities.weapon:draw(self)
     love.graphics.draw(self.blood)
 end
 
@@ -157,8 +150,8 @@ function Player:resetPhysics(map, pos)
     self.body:setAngularDamping(5)
     entities:registerPlayer(self)
 
-    self.torch = Lighting.newLight(pos.x, pos.y, 5, 5, false)
-    map("lighting"):register(self.torch)
+    self.abilities.torch = Torch(pos.x, pos.y, 5, 5, false)
+    map("lighting"):register(self.abilities.torch)
 end
 
 function Player.load(map, start)
