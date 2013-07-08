@@ -35,7 +35,6 @@ local Player = Class{function(self)
     self.health = 10
     self.image = Images.hero1
     self.stats = PlayerStats(self)
-    self.inputQueue = {}
     self.abilities = {
         debug = Debug(),
         weapon = Stick(),
