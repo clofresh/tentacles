@@ -71,39 +71,24 @@ function Player:update(dt, game)
     self.dir = self.body:getAngle()
 
     -- Collect and process any inputs
-    local events = {}
+    local current = {}
     for i, input in pairs(self.inputs) do
-        events = input.getInput(events)
+        current = input.getInput(current)
     end
-    self:queueInput(dt, events)
-    self:processInputQueue(dt)
-
-    -- Update other stuff
-    self.blood:update(dt)
-end
-
-function Player:queueInput(dt, events)
-    table.insert(self.inputQueue, events)
-end
-
-function Player:processInputQueue(dt)
-
-    -- Pop the last two set of events from the input queue
-    local queueLen = #self.inputQueue
-    local current = table.remove(self.inputQueue) or {}
-    local prev = table.remove(self.inputQueue) or {}
 
     -- Update abilities
     for i, ability in pairs(self.abilities) do
-        local shouldContinue = ability:update(self, dt, current, prev)
+        local shouldContinue = ability:update(self, dt, current, self.prev)
         if not shouldContinue then
             break
         end
     end
 
-    -- Requeue the current input, which will be the prev input next frame
-    table.insert(self.inputQueue, current)
+    -- Save the current input as the next frame's prev input
+    self.prev = current
 
+    -- Update other stuff
+    self.blood:update(dt)
 end
 
 function Player:draw()
