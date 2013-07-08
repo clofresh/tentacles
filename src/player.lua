@@ -3,6 +3,7 @@ local keyboard = require("src/input/keyboard")
 local mouse    = require("src/input/mouse")
 
 -- Player abilities
+local Debug    = require("src/abilities/debug")
 local Move     = require("src/abilities/move")
 local Roll     = require("src/abilities/roll")
 local Stick    = require("src/abilities/stick")
@@ -47,6 +48,7 @@ local Player = Class{function(self)
     self.stats = PlayerStats(self)
     self.inputQueue = {}
     self.abilities = {
+        debug = Debug(),
         weapon = Stick(),
         roll = Roll(),
         move = Move(),
@@ -90,15 +92,6 @@ function Player:processInputQueue(dt)
     local queueLen = #self.inputQueue
     local current = table.remove(self.inputQueue) or {}
     local prev = table.remove(self.inputQueue) or {}
-
-    -- Toggle the hero image
-    if current.toggleHero and not prev.toggleHero then
-        if self.image == Images.hero1 then
-            self.image = Images.hero2
-        else
-            self.image = Images.hero1
-        end
-    end
 
     -- Update abilities
     for i, ability in pairs(self.abilities) do
