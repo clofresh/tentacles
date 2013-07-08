@@ -7,6 +7,7 @@ Obstacle = require("src/obstacle")
 Recorder = require("src/Recorder")
 Map      = require("src/map")
 Hud      = require("src/hud")
+Creep    = require("src/creep")
 
 local Game = {}
 
@@ -22,6 +23,8 @@ function Game:init()
 
     -- Start the music
     love.audio.play(Music.main)
+
+    self.creep = Creep()
 end
 
 function Game:update(dt)
@@ -45,6 +48,7 @@ function Game:update(dt)
 
     self.map("zones"):update(dt)
     self.hud:update(dt)
+    self.creep:update(dt)
 
     -- Check if we should change game state
     if (entities.player or {}).destroyed then
@@ -57,6 +61,7 @@ end
 function Game:draw()
     self.cam:draw(function()
         self.map:draw()
+        self.creep:draw()
     end)
 
     self.hud:draw()
@@ -69,6 +74,7 @@ function Game:enter(prevState, status)
         Player.load(self.map)
     end
     print("entering game " ..tostring(self.map))
+
     local player = self.map("entities").player
     if player and self.map("zones"):inExit(player.body:getWorldCenter()) then
         player.canExit = false

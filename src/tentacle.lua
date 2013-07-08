@@ -210,6 +210,12 @@ function Tentacle.fromTmx(obj, layer)
         s.pivot:setLimits(-math.pi/2, math.pi/2)
     end
 
+    for xx = x - 32, x + 32 do
+        for yy = y - 32, y + 32 do
+            Game.creep:addCell(math.floor(xx / 32), math.floor(yy / 32))
+        end
+    end
+
     -- Store everything in the proper place
     t.segments = segments
     layer.collider:register(t)

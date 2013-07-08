@@ -17,6 +17,7 @@ function Assets.load()
 
     -- Images
     Images.blood = love.graphics.newImage("img/blood.gif")
+    Images.creep = love.graphics.newImage("img/creep.png")
     Images.seg1  = love.graphics.newImage("img/tentacle4_seg1.png")
     Images.seg2  = love.graphics.newImage("img/tentacle4_seg2.png")
     Images.seg3  = love.graphics.newImage("img/tentacle4_seg3.png")
