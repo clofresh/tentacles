@@ -54,6 +54,7 @@ function Player:destroy()
     self.body = nil
     self.shape = nil
     self.inputs = nil
+    self.id = nil
 end
 
 function Player:update(dt, game)

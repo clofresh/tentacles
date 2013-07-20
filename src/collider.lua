@@ -48,6 +48,7 @@ function Collider:unregister(entity)
         error("Can't unregister entity")
     end
     self.entities[id] = nil
+    entity.id = nil
     print("Unregistered entity:", id)
 end
 
@@ -63,6 +64,7 @@ function Collider:destroy()
     self.world:setCallbacks(nil, nil, nil, nil)
     self.world:destroy()
     self.world = nil
+    self.id = 0
 end
 
 function Collider:entityFromFixture(fixture)
