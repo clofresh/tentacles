@@ -210,6 +210,35 @@
   <object type="Obstacle" x="1824" y="1248" width="96" height="32"/>
   <object type="Obstacle" x="1920" y="1216" width="32" height="64"/>
   <object type="Obstacle" x="1792" y="1216" width="32" height="64"/>
+  <object type="Tentacle" x="576" y="832" width="32" height="32">
+   <properties>
+    <property name="length" value="320"/>
+    <property name="numSegments" value="10"/>
+    <property name="segmentWidth" value="8"/>
+   </properties>
+  </object>
  </objectgroup>
- <objectgroup name="lighting" width="120" height="60"/>
+ <objectgroup name="lighting" width="120" height="60">
+  <object type="Light" x="1920" y="1152" width="32" height="32">
+   <properties>
+    <property name="power" value="1"/>
+    <property name="size" value="3"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object type="Light" x="1792" y="1152" width="32" height="32">
+   <properties>
+    <property name="power" value="1"/>
+    <property name="size" value="3"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object type="Light" x="1216" y="1472" width="32" height="32">
+   <properties>
+    <property name="power" value="1"/>
+    <property name="size" value="6"/>
+   </properties>
+   <ellipse/>
+  </object>
+ </objectgroup>
 </map>
