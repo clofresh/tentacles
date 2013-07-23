@@ -195,6 +195,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <imagelayer name="grove" width="120" height="60">
+  <image source="../img/scenery/1-yard.png"/>
+ </imagelayer>
  <objectgroup name="zones" width="120" height="60">
   <object type="Exit" x="1824" y="1216" width="96" height="32">
    <properties>
@@ -241,7 +244,4 @@
    <ellipse/>
   </object>
  </objectgroup>
- <imagelayer name="grove" width="120" height="60">
-  <image source="../img/scenery/1-yard.png"/>
- </imagelayer>
 </map>
