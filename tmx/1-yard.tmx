@@ -241,4 +241,7 @@
    <ellipse/>
   </object>
  </objectgroup>
+ <imagelayer name="grove" width="120" height="60">
+  <image source="../img/scenery/1-yard.png"/>
+ </imagelayer>
 </map>
