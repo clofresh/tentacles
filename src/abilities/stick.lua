@@ -5,6 +5,7 @@ Stick = Class{function(self)
     self.maxCooldownTime = 0.125
     self.damage = 1
     self.state = self.idle
+    self.image = Images.sword
 end}
 
 function Stick:type() return "Attack" end
@@ -39,8 +40,9 @@ function Stick:idle(dt, player, current, prev)
         local stickX = playerX + offset * math.cos(angle)
         local stickY = playerY + offset * math.sin(angle)
         self.body = Game.map("entities").collider:newBody(stickX, stickY, "dynamic")
+        self.body:setAngle(angle)
         self.shape = love.physics.newRectangleShape(0, 0,
-            player.hitRadius, 5, angle)
+            player.hitRadius, 5)
         self.fixture = love.physics.newFixture(self.body, self.shape, 1)
         self.rJoint = love.physics.newRevoluteJoint(player.body, self.body,
             playerX, playerY, false)
@@ -95,6 +97,11 @@ end
 
 function Stick:draw()
     if self.body and self.shape then
+        local x, y = self.body:getPosition()
+        local angle = self.body:getAngle()
+        local scaleFactor = 0.15
+        love.graphics.draw(self.image, x, y, angle, scaleFactor, scaleFactor,
+            230, 65)
         love.graphics.polygon("line", self.body:getWorldPoints(
                                         self.shape:getPoints()))
     end

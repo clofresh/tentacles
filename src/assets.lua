@@ -23,6 +23,7 @@ function Assets.load()
     Images.blob  = love.graphics.newImage("img/blob.png")
     Images.hero1  = love.graphics.newImage("img/hero1.png")
     Images.hero2  = love.graphics.newImage("img/hero2.png")
+    Images.sword  = love.graphics.newImage("img/asword1_o.png")
 
     -- Sound
     Music.main = love.audio.newSource("sound/lawyersinlove.mp3")
