@@ -27,4 +27,16 @@ function Map.load(filename)
     return map
 end
 
+function Map.register(layer, ...)
+    if layer and layer.register then
+        return layer:register(...)
+    end
+end
+
+function Map.update(layer, ...)
+    if layer and layer.update then
+        return layer:update(...)
+    end
+end
+
 return Map

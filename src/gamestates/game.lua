@@ -29,7 +29,7 @@ function Game:update(dt)
 
     -- Update the entities
     local entities = self.map("entities")
-    entities:update(dt)
+    Map.update(entities, dt)
 
     -- Update the camera's position
     if entities.player then
@@ -38,12 +38,12 @@ function Game:update(dt)
     end
 
     -- Update the lighting
-    self.map("lighting"):update(dt, self.cam)
+    Map.update(self.map("lighting"), dt, self.cam)
 
     -- Update the recorder, if it's enabled
     self.recorder:update(dt)
 
-    self.map("zones"):update(dt)
+    Map.update(self.map("zones", dt))
     self.hud:update(dt)
 
     -- Check if we should change game state

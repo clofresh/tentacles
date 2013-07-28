@@ -118,7 +118,7 @@ function Player:resetPhysics(map, pos)
     entities:registerPlayer(self)
 
     self.abilities.torch = Torch(pos.x, pos.y, 5, 5, false)
-    map("lighting"):register(self.abilities.torch)
+    Map.register(map("lighting"), self.abilities.torch)
 end
 
 function Player.load(map, start)
