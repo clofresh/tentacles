@@ -2,7 +2,7 @@ require("love.filesystem")
 require("love.image")
 
 thread = love.thread.getThread()
-love.filesystem.setIdentity('wholefoods')
+love.filesystem.setIdentity('tentacle')
 
 while true do
     local status, err = pcall(function() 

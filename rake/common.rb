@@ -1,5 +1,5 @@
 def name()
-    "wholefoods"
+    "tentacles"
 end
 
 def versioned_name()
