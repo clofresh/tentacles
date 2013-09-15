@@ -4,7 +4,7 @@ Critter  = require("src/critter")
 Collider = require("src/collider")
 Tentacle = require("src/tentacle")
 Obstacle = require("src/obstacle")
-Recorder = require("src/Recorder")
+Recorder = require("src/recorder")
 Map      = require("src/map")
 Hud      = require("src/hud")
 
